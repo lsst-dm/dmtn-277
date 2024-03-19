@@ -1,5 +1,5 @@
 .. image:: https://img.shields.io/badge/dmtn--277-lsst.io-brightgreen.svg
-   :target: https://dmtn-277.lsst.io
+   :target: https://dmtn-277.lsst.io/
 .. image:: https://github.com/lsst-dm/dmtn-277/workflows/CI/badge.svg
    :target: https://github.com/lsst-dm/dmtn-277/actions/
 
@@ -10,54 +10,41 @@ The Monster: a southern reference catalog with synthetic ugrizy fluxes for the V
 DMTN-277
 ========
 
-In order to facilitate bootstrap photometric calibrations of early Rubin Observatory data we have created the Monster. This reference catalog uses a ranked order set of other reference catalogs to generate synthetic ugrizy fluxes that can be used calibrate images processed with the LSST science pipelines. This document describes the methodology used to create the Monster, documents the input reference catalogs, and performs basic data validation the Monster reference catalog.
+The Monster: refcat for early lsst
 
-Links
-=====
+**Links:**
 
-- Live drafts: https://dmtn-277.lsst.io
-- GitHub: https://github.com/lsst-dm/dmtn-277
+- Publication URL: https://dmtn-277.lsst.io/
+- Alternative editions: https://dmtn-277.lsst.io/v
+- GitHub repository: https://github.com/lsst-dm/dmtn-277
+- Build system: https://github.com/lsst-dm/dmtn-277/actions/
 
-Build
-=====
+Build this technical note
+=========================
 
-This repository includes lsst-texmf_ as a Git submodule.
-Clone this repository::
+You can clone this repository and build the technote locally if your system has Python 3.11 or later:
 
-    git clone --recurse-submodules https://github.com/lsst-dm/dmtn-277
+.. code-block:: bash
 
-Compile the PDF::
+   git clone https://github.com/lsst-dm/dmtn-277
+   cd dmtn-277
+   make init
+   make html
 
-    make
+Repeat the ``make html`` command to rebuild the technote after making changes.
+If you need to delete any intermediate files for a clean build, run ``make clean``.
 
-Clean built files::
+The built technote is located at ``_build/html/index.html``.
 
-    make clean
+Publishing changes to the web
+=============================
 
-Updating acronyms
------------------
+This technote is published to https://dmtn-277.lsst.io/ whenever you push changes to the ``main`` branch on GitHub.
+When you push changes to a another branch, a preview of the technote is published to https://dmtn-277.lsst.io/v.
 
-A table of the technote's acronyms and their definitions are maintained in the ``acronyms.tex`` file, which is committed as part of this repository.
-To update the acronyms table in ``acronyms.tex``::
+Editing this technical note
+===========================
 
-    make acronyms.tex
-
-*Note: this command requires that this repository was cloned as a submodule.*
-
-The acronyms discovery code scans the LaTeX source for probable acronyms.
-You can ensure that certain strings aren't treated as acronyms by adding them to the `skipacronyms.txt <./skipacronyms.txt>`_ file.
-
-The lsst-texmf_ repository centrally maintains definitions for LSST acronyms.
-You can also add new acronym definitions, or override the definitions of acronyms, by editing the `myacronyms.txt <./myacronyms.txt>`_ file.
-
-Updating lsst-texmf
--------------------
-
-`lsst-texmf`_ includes BibTeX files, the ``lsstdoc`` class file, and acronym definitions, among other essential tooling for LSST's LaTeX documentation projects.
-To update to a newer version of `lsst-texmf`_, you can update the submodule in this repository::
-
-   git submodule update --init --recursive
-
-Commit, then push, the updated submodule.
-
-.. _lsst-texmf: https://github.com/lsst/lsst-texmf
+The main content of this technote is in ``index.rst`` (a reStructuredText file).
+Metadata and configuration is in the ``technote.toml`` file.
+For guidance on creating content and information about specifying metadata and configuration, see the Documenteer documentation: https://documenteer.lsst.io/technotes.
