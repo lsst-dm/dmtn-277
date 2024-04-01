@@ -11,7 +11,11 @@ All code used to create the monster can be found in [lsst-dm/the_monster](https:
 
 ## Simulated monster for Ops Rehearsal 3
 
-For the operations rehearsal 3, using simulated ComCam data, a simulated reference catalog was created ([DM-42510](https://rubinobs.atlassian.net/browse/DM-42510)). This catalog is intended to act as a photometric and astrometric reference catalog for the simulated data, and it does not include proper motions. It does include positions and _gri_-band fluxes with realistic errors. 
+For the operations rehearsal 3, using simulated ComCam data, a simulated reference catalog was created ([DM-42510](https://rubinobs.atlassian.net/browse/DM-42510)). 
+All stars, for this catalog and all observations, are simulated in the same manner as [LSST DESC DC2](https://arxiv.org/abs/2010.05926) using the Galfast model ([Jurić 2008](https://iopscience.iop.org/article/10.1086/523619)). 
+This catalog is intended to act as a photometric and astrometric reference catalog for the simulated data, and it does not include proper motions. 
+It does include positions and _gri_-band fluxes with realistic errors. 
+
 
 The monster reference catalog is expected to be used for early calibrations and so, for this data, we used the properties of the monster in a high-Galactic latitude region to create the simulated reference dataset. Briefly: 
 - The limiting magnitude is roughly `r < 21` over the `g-i` color range of `0.5 < g-i < 3`
