@@ -13,7 +13,7 @@ All code used to create the monster can be found in [lsst-dm/the_monster](https:
 
 For the operations rehearsal 3, using simulated ComCam data, a simulated reference catalog was created ([DM-42510](https://rubinobs.atlassian.net/browse/DM-42510)). This catalog is intended to act as a photometric and astrometric reference catalog for the simulated data, and it does not include proper motions. It does include positions and _gri_-band fluxes with realistic errors. 
 
-The monster reference catalog is expected to be used for early calibrations and so, for this data, we used the properties of the monster to in a high-Galactic latitude region to create the simulated reference dataset. Briefly: 
+The monster reference catalog is expected to be used for early calibrations and so, for this data, we used the properties of the monster in a high-Galactic latitude region to create the simulated reference dataset. Briefly: 
 - The limiting magnitude is roughly `r < 21` over the `g-i` color range of `0.5 < g-i < 3`
 - Coordinate errors come from _Gaia_ DR3 and become non-linear at the faint limit (see Figure 1).
 
@@ -36,11 +36,15 @@ Fig 2: g-band magnitude errors as a function of magnitude for the high galactic 
 
 This reference catalog can be accessed in the repo:
 
-> `repo = /repo/ops-rehearsal-3-prep` 
+> `repo = '/repo/ops-rehearsal-3-prep'` 
 
-with the collection 
+with the dataset type
 
-> `collection = refcats/DM-42510`. 
+> `datasetType='uw_stars_20240228'` 
+
+and collection 
+
+> `collections = ['refcats/DM-42510']`. 
 
 For more details/plots see [DM-42510](https://rubinobs.atlassian.net/browse/DM-42510).
 
