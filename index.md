@@ -8,53 +8,23 @@ This reference catalog uses a ranked order set of other reference catalogs to ge
 All code used to create the monster can be found in [lsst-dm/the_monster](https://github.com/lsst-dm/the_monster) on GitHub. 
 
 
-
-## Simulated monster for Ops Rehearsal 3
-
-For the operations rehearsal 3, using simulated ComCam data, a simulated reference catalog was created ([DM-42510](https://rubinobs.atlassian.net/browse/DM-42510)). 
-All stars, for this catalog and all observations, are simulated in the same manner as [LSST DESC DC2](https://arxiv.org/abs/2010.05926) using the Galfast model ([Jurić 2008](https://iopscience.iop.org/article/10.1086/523619)). 
-This catalog is intended to act as a photometric and astrometric reference catalog for the simulated data, and it does not include proper motions. 
-It does include positions and _gri_-band fluxes with realistic errors. 
-
-
-The monster reference catalog is expected to be used for early calibrations and so, for this data, we used the properties of the monster in a high-Galactic latitude region to create the simulated reference dataset. Briefly: 
-- The limiting magnitude is roughly `r < 21` over the `g-i` color range of `0.5 < g-i < 3`
-- Coordinate errors come from _Gaia_ DR3 and become non-linear at the faint limit (see Figure 1).
-
-:::{figure} ./_images/coordRAError.png
-:name: coordRAError
-:target: ../_images/coordRAError.png
-
-Fig 1: RA errors (in radians) as a function of r-band magnitude for the high galactic latitude sample of `the_monster`. The red line shows the spline fit used to assign errors to the simulated refcat. 
-:::
-
-- Magnitude errors come mainly from DES data in this region and synthetic Gaia XP photometry at the bright end. 
-Figure 2 demonstrates g-band errors as a function of magnitude. 
-
-:::{figure} ./_images/gmagError.png
-:name: gmagRAError
-:target: ../_images/gmagError.png
-
-Fig 2: g-band magnitude errors as a function of magnitude for the high galactic lattitude sample of `the_monster`. The red line shows the spline fit used to assign errors to the simulated refcat. 
-:::
-
-This reference catalog can be accessed in the repo:
-
-> `repo = '/repo/ops-rehearsal-3-prep'` 
-
-with the dataset type
-
-> `datasetType='uw_stars_20240228'` 
-
-and collection 
-
-> `collections = ['refcats/DM-42510']`. 
-
-For more details/plots see [DM-42510](https://rubinobs.atlassian.net/browse/DM-42510).
-
-All code used to create the monster can be found in [lsst-dm/the_monster](https://github.com/lsst-dm/the_monster) on github. 
-
 ## Introduction
+In order to sucessfully comission the Vera C. Rubin Observatory and begin the Legacy Survey of Space and Time (LSST) we need to be able to perform astrometric and photometric calibrations of individual visits. 
+This calibration will be done in the rubin science pipelines by comparing instrumental fluxes of stars to a reference catalog.
+To meet the science requirements for relative photometric precision (OSS-REQ-0387) the rms of repeated measurements of unresloved sources must be, at a miniumum, less than 8 mmag (12 mmag) for gri-band (uzy-band) observations. 
+Additionally, the requirements for the astrometric quality of data are defined in OSS-REQ-038 are such that the rms on the distance between pairs of sources must be less than 10 milli-arcseconds, with an error on the accuracy of less than 50 mas in any axis. 
+To achieve these goals we need a reference catalog with the following features:
+- The catalog must cover any location we will want to point the telescope. This includes the full sky with declination < 30 deg, althogh we have generated an all-sky catalog. 
+- There must be flux estimates in all bandpasses, ugrizy for LSSTCam and grizy for LATISS. 
+- The number density of un-saturated high-signal to noise sources must be high enough to calibrate a single LSSTCam CCD. 
+The size of a detector on the sky is X.X which is approximately the same size as an Nside=256 healpixel. 
+- High precision measurements of the positions of unresolved sources. 
+This is achived by using Gaia Dr3 as the basis for the objects in our catalog with full position and proper motion measurements included. 
+
+Previous catalogs such as ATLAS-RC2 provide the all-sky coverage, but are not sufficently deep to provide the required source density. 
+PS1 provides the depth in grizy but not the all-sky coverage. 
+Therefore, we have developed *the_monster*, a combination of reference catalogs similar to ATLAS-RC2 but with the bandpass coverage and depth required to enable LSST. 
+
 
 ## Input Data
 
@@ -189,6 +159,51 @@ For each shard:
 
 
 ## Appendix 
+## Ops Rehearsal 3: a simulated monster catalog
+
+For the operations rehearsal 3, using simulated ComCam data, a simulated reference catalog was created ([DM-42510](https://rubinobs.atlassian.net/browse/DM-42510)). 
+All stars, for this catalog and all observations, are simulated in the same manner as [LSST DESC DC2](https://arxiv.org/abs/2010.05926) using the Galfast model ([Jurić 2008](https://iopscience.iop.org/article/10.1086/523619)). 
+This catalog is intended to act as a photometric and astrometric reference catalog for the simulated data, and it does not include proper motions. 
+It does include positions and _gri_-band fluxes with realistic errors. 
+
+
+The monster reference catalog is expected to be used for early calibrations and so, for this data, we used the properties of the monster in a high-Galactic latitude region to create the simulated reference dataset. Briefly: 
+- The limiting magnitude is roughly `r < 21` over the `g-i` color range of `0.5 < g-i < 3`
+- Coordinate errors come from _Gaia_ DR3 and become non-linear at the faint limit (see Figure 1).
+
+:::{figure} ./_images/coordRAError.png
+:name: coordRAError
+:target: ../_images/coordRAError.png
+
+Fig 1: RA errors (in radians) as a function of r-band magnitude for the high galactic latitude sample of `the_monster`. The red line shows the spline fit used to assign errors to the simulated refcat. 
+:::
+
+- Magnitude errors come mainly from DES data in this region and synthetic Gaia XP photometry at the bright end. 
+Figure 2 demonstrates g-band errors as a function of magnitude. 
+
+:::{figure} ./_images/gmagError.png
+:name: gmagRAError
+:target: ../_images/gmagError.png
+
+Fig 2: g-band magnitude errors as a function of magnitude for the high galactic lattitude sample of `the_monster`. The red line shows the spline fit used to assign errors to the simulated refcat. 
+:::
+
+This reference catalog can be accessed in the repo:
+
+> `repo = '/repo/ops-rehearsal-3-prep'` 
+
+with the dataset type
+
+> `datasetType='uw_stars_20240228'` 
+
+and collection 
+
+> `collections = ['refcats/DM-42510']`. 
+
+For more details/plots see [DM-42510](https://rubinobs.atlassian.net/browse/DM-42510).
+
+All code used to create the monster can be found in [lsst-dm/the_monster](https://github.com/lsst-dm/the_monster) on github. 
+
 ### Diagnostic plots
 Add content here.
 See the [reStructuredText Style Guide](https://developer.lsst.io/restructuredtext/style.html) to learn how to create sections, links, images, tables, equations, and more.
