@@ -4,3 +4,5 @@
 from documenteer.conf.technote import *  # noqa F401 F403
 source_suffix = ['.rst', '.md']
 myst_heading_anchors = 3
+#extensions = ["sphinx_subfigure"]
+numfig = True  # optional
