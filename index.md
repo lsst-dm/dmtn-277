@@ -24,16 +24,28 @@ This is achived by using Gaia Dr3 as the basis for the objects in our catalog wi
 Previous catalogs such as ATLAS-RC2 provide the all-sky coverage, but are not sufficently deep to provide the required source density. 
 PS1 provides the depth in *grizy*-bands but not the *u*-band or the all-sky coverage. 
 Therefore, we have developed *the_monster*, a combination of reference catalogs similar to ATLAS-RC2 but with the bandpass coverage and depth required to enable LSST. 
-
-### summary of creation of *the_monster*
+> **NOTE**
+> 
+>In this document we use **source** to describe the bandpass a measurment is currently in and **target** to describe the bandpass we would like to transform a measurement into. 
+### Summary of creation of *the_monster*
 The creation of the *the_monster* can roughly speaking be broken into two components, the *grizy*-bands and the *u*-band. 
-First we describe the process for the *grizy*-bands:
+#### *grizy*-bands:
 1. for each input reference catalog we retrieve a version containing only high-quality stellar sources these selections are documented below in the [Input Data section](#input-data). 
 2. Subsequently, all input catalogs are converted into the LSST refcat format (htm7) using the [ConvertReferenceCatalogTask](https://pipelines.lsst.io/modules/lsst.meas.algorithms/tasks/lsst.meas.algorithms.ConvertReferenceCatalogTask.html#lsst-task-lsst-meas-algorithms-convertreferencecatalog-convertreferencecatalogtask), configurations for these conversions can be found in the [configs](https://github.com/lsst-dm/the_monster/tree/main/configs) folder of the_monster [github repo](https://github.com/lsst-dm/the_monster). 
 
-3. We perform validation 
-4. derive color terms 
-5. assemble the monster 
+3. Our reference catalog, the_monster, uses DES bandpasses internally for *grizy*-bands, so the next step is to convert all measured fluxes to the DES system. 
+This is done by fitting a cubic spline to the ratio of source flux and target flux as a function of color.
+Additionally, for PS1 we found a magnitude dependent offset that has been fit as well.  
+The [Colorterms section](#colorterms) describes these fits in more detail.
+4. With the external reference catalogs in hand as well as colorterms for each measurement we next create versions of each refcat that have been matched to *Gaia_DR3* sources, further selected to only include isolated sources (no neighbors within 1''), and transformed to the DES bandpass
+
+5. Finally, we assemble the monster by reading in each transformed htm shard and adding measurements for each *Gaia_DR3* (a rank order of preference is used when multiple refcats have measurements of the same source) to the_monster catalog. We add flux measurements for the DES-bandpasses as well as any target bandpasses for the_monster catalog. In version one of the_monster, the_monster_20240904, LATISS fluxes and synthLSST fluxes are included as well. 
+
+#### *u*-band
+For the *u*-band the creation process is similar with a few notable exceptions. 
+- the internal system is SDSS u-band
+- Gaiaxp tied to SDSS u-band as described in section
+- We use a stellar locus regression based method to transform DES *g*-band fluxes and g-r colors into SDSS u-band measurements.
 
 ## Input Data
 
