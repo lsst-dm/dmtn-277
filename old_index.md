@@ -1,0 +1,272 @@
+# The Monster: a reference catalog with synthetic ugrizy fluxes for the Vera C. Rubin Observatory
+
+## Abstract
+
+In order to facilitate bootstrap photometric calibrations of early Rubin Observatory data we have created the Monster.
+This reference catalog uses a ranked order set of other reference catalogs to generate synthetic ugrizy fluxes that can be used calibrate images processed with the LSST science pipelines.
+
+All code used to create the monster can be found in [lsst-dm/the_monster](https://github.com/lsst-dm/the_monster) on GitHub. 
+
+
+## Introduction
+In order to sucessfully comission the Vera C. Rubin Observatory and begin the Legacy Survey of Space and Time (LSST) we need to be able to perform astrometric and photometric calibrations of individual visits. 
+This calibration will be done in the rubin science pipelines by comparing instrumental fluxes of stars to a reference catalog.
+To meet the science requirements for relative photometric precision (OSS-REQ-0387) the rms of repeated measurements of unresloved sources must be, at a miniumum, less than 8 mmag (12 mmag) for gri-band (uzy-band) observations. 
+Additionally, the requirements for the astrometric quality of data are defined in OSS-REQ-038 are such that the rms on the distance between pairs of sources must be less than 10 milli-arcseconds, with an error on the accuracy of less than 50 mas in any axis. 
+To achieve these goals we need a reference catalog with the following features:
+- The catalog must cover any location we will want to point the telescope. This includes the full sky with declination < 30 deg, althogh we have generated an all-sky catalog. 
+- There must be flux estimates in all bandpasses, ugrizy for LSSTCam and grizy for LATISS. 
+- The number density of un-saturated high-signal to noise sources must be high enough to calibrate a single LSSTCam CCD. 
+The size of a detector on the sky is X.X which is approximately the same size as an Nside=256 healpixel. 
+- High precision measurements of the positions of unresolved sources. 
+This is achived by using Gaia Dr3 as the basis for the objects in our catalog with full position and proper motion measurements included. 
+
+Previous catalogs such as ATLAS-RC2 provide the all-sky coverage, but are not sufficently deep to provide the required source density. 
+PS1 provides the depth in *grizy*-bands but not the *u*-band or the all-sky coverage. 
+Therefore, we have developed *the_monster*, a combination of reference catalogs similar to ATLAS-RC2 but with the bandpass coverage and depth required to enable LSST. 
+> **NOTE**
+> 
+>In this document we use **source** to describe the bandpass a measurment is currently in and **target** to describe the bandpass we would like to transform a measurement into. 
+
+## Summary of creation of *the_monster*
+The creation of the *the_monster* can roughly speaking be broken into two components, the *grizy*-bands and the *u*-band. 
+### *grizy*-bands:
+1. for each input reference catalog we retrieve a version containing only high-quality stellar sources these selections are documented below in the [Input Data section](#input-data). 
+2. Subsequently, all input catalogs are converted into the LSST refcat format (htm7), see [Catalog Conversion](#catalog-conversion) section.
+
+3. Our reference catalog, the_monster, uses DES bandpasses internally for *grizy*-bands, so the next step is to convert all measured fluxes to the DES system. 
+This is done by fitting a cubic spline to the ratio of source flux and target flux as a function of color.
+Additionally, for PS1 we found a magnitude dependent offset that has been fit as well.  
+The [Colorterms section](#color-transformations) describes these fits in more detail.
+4. With the external reference catalogs in hand as well as colorterms for each measurement we next create versions of each refcat that have been matched to *Gaia_DR3* sources, further selected to only include isolated sources (no neighbors within 1''), and transformed to the DES bandpass
+
+5. Finally, we assemble the monster by reading in each transformed htm shard and adding measurements for each *Gaia_DR3* (a rank order of preference is used when multiple refcats have measurements of the same source) to the_monster catalog. We add flux measurements for the DES-bandpasses as well as any target bandpasses for the_monster catalog. In version one of the_monster, the_monster_20240904, LATISS fluxes and synthLSST fluxes are included as well. 
+
+### *u*-band
+For the *u*-band the creation process is similar with a few notable exceptions. 
+- the internal system is SDSS u-band
+- Gaiaxp tied to SDSS u-band as described in section
+- We use a stellar locus regression based method to transform DES *g*-band fluxes and g-r colors into SDSS u-band measurements.
+
+The rest of this tecnote is organized as follows, each of the steps in monster creation are described in more detail. 
+Then, we show all diagnostic plots for each input refcat. 
+
+## Input Data
+
+Here we describe the input catalogs used the the creation of The Monster. 
+For each catalog we include the origin, any cuts applied and summary plots of the spatial distributions.
+The photometric catalogs used in this process are (in order of priority):
+- DES Y6 Calibration Stars
+- Gaia XP Synthetic Magnitudes
+- PS1
+- SkyMapper
+- VST
+
+For _u_-band we use 
+- SDSS Standard Stars
+- Gaia XP Synthetic Magnitudes
+- Stellar Locus Regression based magnitudes
+
+## Catalog conversion
+To convert the catalogs into lsst format we follow the instructions on [how to generate an LSST reference catalog](https://pipelines.lsst.io/modules/lsst.meas.algorithms/creating-a-reference-catalog.html) using the [ConvertReferenceCatalogTask](https://pipelines.lsst.io/modules/lsst.meas.algorithms/tasks/lsst.meas.algorithms.ConvertReferenceCatalogTask.html#lsst-task-lsst-meas-algorithms-convertreferencecatalog-convertreferencecatalogtask). 
+Each refcat requires its own configurations which can be found in the [configs](https://github.com/lsst-dm/the_monster/tree/main/configs) folder of the_monster [github repo](https://github.com/lsst-dm/the_monster). 
+Here we include and example configuration used for the [DES Y6 Calibration Stars](#des-y6-calibration-stars)
+## Color Transformations
+### To DES Bandpasses
+:::{figure} ./_images/color_terms/GaiaXP_to_DES_band_g_color_term.png
+:figclass: technote-wide-content
+:name: xp_to_des_g_colorterm
+
+
+Ratio of fluxes between GaiaXP synthetic photometry and DES for the g-band as a function of g-i color.
+The red line shows the cubic spline that defines our color transformation.  
+:::
+
+:::{figure} ./_images/color_terms/GaiaXP_to_DES_band_g_flux_residuals.png
+:figclass: technote-wide-content
+:name: xp_to_des_g_residual
+
+Residuals between GaiaXP synthetic photometry transformed to DES and DES as a function of magnitude.
+:::
+
+### To Synthetic LSST Bandpasses
+### To LATISS Bandpasses
+### To SDSS u-band
+
+## Assembly of the_monster v1
+### Source count Maps
+:::{figure} ./_images/source_density_maps/u-band/u-band-counts-full.png
+:figclass: technote-wide-content
+:name: source_counts_u
+
+Map showing number of sources with a u-band measurement per `nside`=256 healpixel
+:::
+### Source Flag Maps
+:::{figure} ./_images/source_survey_maps/u-band_source.png
+:figclass: technote-wide-content
+:name: source_flag_u
+
+Map showing the median source of objects at each point in the sky for the u band
+:::
+
+## Detailed Descriptions
+In the folowing subsections we describe the external photometric catalogs used in the creation of the_monster.
+### DES Y6 Calibration Stars
+Data is described [Rykoff et al 2023](https://arxiv.org/abs/2305.01695)
+Briefly, this is a catalog of calibrated reference stars that was generated by the Forward Calibration Method (FGCM) pipeline (arXiv:1706.01542) as part of the FGCM photometric calibration of the full Dark Energy Survey (DES) 6-Year data set (Y6). This catalog provides DES grizY magnitudes for 17 million stars with i-band magnitudes mostly in the range 16 < i < 21 spread over the full DES footprint covering 5000 square degrees over the Southern Galactic Cap at galactic latitudes b < -20 degrees (plus a few outlying fields disconnected from the main survey footprint). These stars are calibrated to a uniformity of better than 1.8 milli-mag (0.18%) RMS over the survey area. The absolute calibration of the catalog is computed with reference to the STISNIC.007 spectrum of the Hubble Space Telescope CalSpec standard star C26202; including systematic errors, the absolute flux system is known at the approximately 1% level. As such, these stars provide a useful reference catalog for calibrating grizY-band or grizY-like band photometry in the Southern Hemisphere, particularly for observations within the DES footprint. 
+
+The data was retrieved from https://data.darkenergysurvey.org/public_calib/DES_6yr_CalibStarCat/Y6A1_FGCM_V3_3_1_PSF_ALL_STARS.fits on May 2nd, 2023.
+
+Data page is at https://des.ncsa.illinois.edu/releases/other
+
+#### Color transformations 
+The DES bandpasses act as the internal bandpasses for the_monster and 
+
+### Gaia XP Synthetic Magnitudes
+This catalog contains synthetic fluxes/magnitudes for stars in the following passbands:
+PS1std-grizy, 
+PS1-grizy, 
+DECam-grizY
+SDSSstd-ugriz (and non std)
+SkyMapper-u2uvgriz
+
+photometry generated from Gaia DR3 XPSpectra (https://arxiv.org/abs/2206.06215). 
+
+This was done using GaiaXPy (https://github.com/gaia-dpci/GaiaXPy/cd )
+
+### PS1
+/sdf/group/rubin/datasets/refcats/htm/v1/ps1_pv3_3pi_20170110/README.txt 
+This reference catalog, intended for use with the LSST Science Pipelines
+(https://pipelines.lsst.io) was constructed from the "3pi.pv3.20160422" DVO
+catalog of Processing Version 3 of the Pan-STARRS1 3pi survey, released to
+the Pan-STARRS1 Science Consortium. Following the public release of this data
+in December 2016 (http://panstarrs.stsci.edu), you may distribute this catalog
+freely.
+
+This format of the catalog contains 2,990,470,528 point sources at
+Dec > -30 deg to i ~ 22.5 mag, and has a total size of 423 GB. 
+
+Relevant papers for information and citation include:
+
+* Chambers et al., "The Pan-STARRS1 Surveys", 2016arXiv161205560C
+* Magnier et al., "The Pan-STARRS Data Processing System", 2016arXiv161205240M
+* Waters et al., "Pan-STARRS Pixel Processing: Detrending, Warping, Stacking",
+    2016arXiv161205245W
+* Magnier et al., "Pan-STARRS Pixel Analysis: Source Detection and
+    Characterization", 2016arXiv161205244M
+* Magnier et al., "Pan-STARRS Photometric and Astrometric Calibration",
+    2016arXiv161205242M
+* Flewelling et al., "The Pan-STARRS1 Database and Data Products",
+    2016arXiv161205243F
+* Tonry et al., "The Pan-STARRS1 Photometric System", 2012ApJ...750...99T
+* Schlafly et al., "Photometric Calibration of the First 1.5 Years of the
+    Pan-STARRS1 Survey", 2012ApJ...756..158S
+
+
+### SkyMapper
+
+### VST
+
+VST ATLAS DR4 
+downloaded from ESO archive 
+
+documentation can be found at: http://www.eso.org/rm/api/v1/public/releaseDescriptions/90
+
+skim to healpixels done with the following criteria:
+
+sel= (dat["MERGEDCLASS"]==-1) # stars
+sel&= (dat["PRIORSEC"]==0) # unique source 
+sel&= (dat["PRIMARY_SOURCE"]==1) # primary source 
+sel &= (dat["UERRBITS"] < 0) # no u-band processing flags
+
+
+
+
+
+### GAIA DR3 - the astrometric reference
+Original data: https://www.cosmos.esa.int/web/gaia/dr3
+
+The full Gaia DR3 catalog in indexed HTM format. This is the first LSST refcat
+to contain the full coordinate covariance.
+
+Magnitude range: ~3 - 21 (G magnitude)
+
+## Methods
+
+### _grizy_-bands
+
+1. Cross Match each catalog to Gaia DR3 (after some isolation cuts)
+2. Use the Gaia/DES cross-match stars as the overall cross-calibration reference.
+3. For each catalog, compute an empirical correction to go from Catalog X to DES.  This uses the cross-coverage.  The empirical correction will be some sort of spline fit (TBD) to apply to stars across a broad range of colors.  We will also allow for a “background offset” term (to account for offsets as a function of flux due to background issues.  These may be small except for Gaia XP.)
+4. Apply the empirical correction to convert Catalog X to DES bands for the full catalog.  At first we will be assuming that each catalog is globally uniform, all we have to do is worry about converting from system to system + a background term.  We can revisit this (based on Gaia XP?) based on how things look.
+5. Convert from DES to LSSTCam (sim for now) using a stellar template library.  When we have real data (throughputs, stars, both) we can update this conversion all at once.
+6. Choose a catalog rank-ordering.  (DES; Gaia XP; PS1; SkyMapper; etc). (This is just an example).  Rank ordering may be different per band (in particular, I bet the ordering for y could be different from griz).
+7. For each star with band X we choose the top-ranked catalog with a measurement in that band.  This could be revisited with a more sophisticated fit if it proves problematic.  However, at least all the catalogs should be on the same “system”.
+
+From assemble.py 
+For each shard:
+1. Read the full Gaia DR3 catalog for the shard
+2. Initialize 18 columns (ugrizy fluxes and their errors, and a source flag (integer)) for the results
+(3-6): Within a loop over surveys in order from lowest to highest priority:
+3. Read each of the (already transformed to the DES system) refcats for the shard
+4. Transform each refcat to the (synthetic) system (e.g., LSST or LATISS)
+5. Match each refcat to the Gaia DR3 catalog
+6. Update the fluxes, flux errors, and flags whenever a value is non-NaN
+
+### _u_-band
+1. XP (SDSS) g-r/u to SDSS u correction, with northern training region at high latitude.  That is, use the XP (SDSS) g-r color to correct XP SDSS u to SDSS u.  In the end this will be our own empirical standardization procedure that doesn’t assume the SDSS u-band throughput is totally wrong, and instead (essentially) assumes the Gaia u-band throughput needs to be empirically corrected.  Because of the Gaia u-band depth this only really works over a limited range of g-r colors (0.2 < g-r < 0.6).  The density of Gaia XP sn>10 u-band (where it is reliable) is quite low.  Incorporating the low s/n estimates is a challenge for another day…
+2. DES g-r to corrected XP corrected SDSS u over DES training region at high latitude. That is, empirically determine the u-g vs g-r stellar locus which uses the same as our color term code (it starts with g rather than u, and has a much bigger correction).  I am currently using XP, but have considered using the DES/SDSS overlap which gives more color range, but would require more editing of things.
+3. Over the full Monster footprint, estimate SDSS SLR u for all stars where we have a g-r color estimate (DES equivalent). This gets us a bunch of stars … but it’s a stellar locus, and there are reddening and metallicity problems and I would worry about this, so …
+4. Over the full Monster footprint, at lowish res, estimate the offset between the XP corrected SDSS u and the SLR u. This gives a map to “correct” the SLR to something a bit better (XP) and hopefully cancel some of the reddening/metallicity effects.
+5. Use bilinear interpolation to correct the SLR u to the XP u so everything will be well matched.
+
+## Results
+
+
+
+## Appendix 
+### Ops Rehearsal 3: a simulated monster catalog
+
+For the operations rehearsal 3, using simulated ComCam data, a simulated reference catalog was created ([DM-42510](https://rubinobs.atlassian.net/browse/DM-42510)). 
+All stars, for this catalog and all observations, are simulated in the same manner as [LSST DESC DC2](https://arxiv.org/abs/2010.05926) using the Galfast model ([Jurić 2008](https://iopscience.iop.org/article/10.1086/523619)). 
+This catalog is intended to act as a photometric and astrometric reference catalog for the simulated data, and it does not include proper motions. 
+It does include positions and _gri_-band fluxes with realistic errors. 
+
+
+The monster reference catalog is expected to be used for early calibrations and so, for this data, we used the properties of the monster in a high-Galactic latitude region to create the simulated reference dataset. Briefly: 
+- The limiting magnitude is roughly `r < 21` over the `g-i` color range of `0.5 < g-i < 3`
+- Coordinate errors come from _Gaia_ DR3 and become non-linear at the faint limit (see Figure 1).
+
+:::{figure} ./_images/coordRAError.png
+:name: coordRAError
+:target: ../_images/coordRAError.png
+
+Fig 1: RA errors (in radians) as a function of r-band magnitude for the high galactic latitude sample of `the_monster`. The red line shows the spline fit used to assign errors to the simulated refcat. 
+:::
+
+- Magnitude errors come mainly from DES data in this region and synthetic Gaia XP photometry at the bright end. Figure 2 demonstrates g-band errors as a function of magnitude. 
+
+
+:::{figure} ./_images/gmagError.png
+:name: gmagRAError
+:target: ../_images/gmagError.png
+
+Fig 2: g-band magnitude errors as a function of magnitude for the high galactic lattitude sample of `the_monster`. The red line shows the spline fit used to assign errors to the simulated refcat. 
+:::
+
+This reference catalog can be accessed in the repo
+
+
+> `repo = '/repo/ops-rehearsal-3-prep'` 
+
+with the dataset type
+
+> `datasetType='uw_stars_20240228'` 
+
+and collection 
+
+> `collections = ['refcats/DM-42510']`. 
+
+For more details/plots see [DM-42510](https://rubinobs.atlassian.net/browse/DM-42510).
+
+All code used to create the monster can be found in [lsst-dm/the_monster](https://github.com/lsst-dm/the_monster) on github. 
