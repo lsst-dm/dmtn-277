@@ -4,7 +4,7 @@
 % Package imports go here.
 
 % Local commands go here.
-
+\newcommand\monster{\textit{the\_monster}}
 %If you want glossaries
 %\input{aglossary.tex}
 %\makeglossaries
@@ -23,7 +23,11 @@
 % \setDocSubtitle{A subtitle}
 
 \author{%
-Peter Ferguson
+Peter Ferguson,
+Eli Rykoff,
+Jeff Carlin, 
+Clare Saunders, 
+John Parejko
 }
 
 \setDocRef{DMTN-277}
@@ -60,9 +64,9 @@ Peter Ferguson
 %\appendix
 % Include all the relevant bib files.
 % https://lsst-texmf.lsst.io/lsstdoc.html#bibliographies
-%\section{References} \label{sec:bib}
-%\renewcommand{\refname}{} % Suppress default Bibliography section
-%\bibliography{local,lsst,lsst-dm,refs_ads,refs,books}
+\section{References} \label{sec:bib}
+\renewcommand{\refname}{} % Suppress default Bibliography section
+\bibliography{local,lsst,lsst-dm,refs_ads,refs,books}
 
 % Make sure lsst-texmf/bin/generateAcronyms.py is in your path
 %%\section{Acronyms} \label{sec:acronyms}

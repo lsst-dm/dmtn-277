@@ -1,35 +1,38 @@
 \section{Introduction}
 In order to sucessfully comission the Vera C. Rubin Observatory and begin the Legacy Survey of Space and Time (LSST) we need to be able to perform astrometric and photometric calibrations of individual visits. 
-This calibration will be done in the rubin science pipelines by comparing instrumental fluxes of stars to a reference catalog.
-To meet the science requirements for relative photometric precision (OSS-REQ-0387) the rms of repeated measurements of unresloved sources must be, at a miniumum, less than 8 mmag (12 mmag) for gri-band (uzy-band) observations. 
-Additionally, the requirements for the astrometric quality of data are defined in OSS-REQ-038 are such that the rms on the distance between pairs of sources must be less than 10 milli-arcseconds, with an error on the accuracy of less than 50 mas in any axis. 
-To achieve these goals we need a reference catalog with the following features:
+These calibrations will be done within the Rubin Science Pipelines by comparing instrumental measurements of fluxes and positions to those in a reference catalog.
+The science requirements for relative photometric precision \citep[OSS-REQ-0387;][]{LSE-30} are defined as the RMS of repeated measurements of unresloved sources must be, at a miniumum, less than 8 mmag (12 mmag) for gri-band (uzy-band) observations. 
+Additionally, the requirements for the astrometric quality of data are defined in OSS-REQ-038 are such that the RMS on the distance between pairs of sources must be less than 10 milli-arcseconds, with an error on the accuracy of less than 50 mas in any axis. 
+To meet these requirements we need a reference catalog with the following features:
 
 \begin{itemize}
-    \item The catalog must cover any location we will want to point the telescope. This includes the full sky with declination < 30 deg, althogh we have generated an all-sky catalog. 
-    \item There must be flux estimates in all bandpasses, ugrizy for LSSTCam and grizy for LATISS. 
+    \item The catalog must cover any location we will want to point the telescope. 
+    This includes the full sky with declination < 30 deg, althogh we have generated an all-sky catalog. 
+    \item There must be flux estimates in all bandpasses, \textit{ugrizy} for LSSTCam and \textit{grizy} for LATISS. 
     \item The number density of un-saturated high-signal to noise sources must be high enough to calibrate a single LSSTCam CCD. 
-    The size of a detector on the sky is X.X which is approximately the same size as an Nside=256 healpixel. 
+    This requires there to be at least 10 reference sources per \texttt{NSIDE}=256 healpixel on the sky.
+    The size of a detector on the sky is $\sim 0.05\,\mathrm{deg}^2$  equal to that of an \texttt{NSIDE}=256 healpixel. 
     \item High precision measurements of the positions of unresolved sources. 
-    This is achived by using Gaia Dr3 as the basis for the objects in our catalog with full position and proper motion measurements included. 
+    This is achived by using \textit{Gaia}-DR3 as the basis for the objects in our catalog with full position and proper motion measurements included. 
     
-\end{itemize}
+\end{itemize} 
 
-Previous catalogs such as ATLAS-RC2 provide the all-sky coverage, but are not sufficently deep to provide the required source density. 
-PS1 provides the depth in \emph{grizy}-bands but not the *u*-band or the all-sky coverage. 
-Therefore, we have developed \emph{the\_monster}, a combination of reference catalogs similar to ATLAS-RC2 but with the bandpass coverage and depth required to enable LSST. 
+Previous catalogs such as ATLAS-REFCAT2 \citep{Tonry:2018} provide the all-sky coverage, but are not sufficently deep to provide the required source density. 
+PS1 \citep{Chambers:2016} provides the depth in \emph{grizy}-bands but not the *u*-band or the sky coverage below a declination of -30 deg. 
+Additionally, we would like to estimate fluxes in the LSSTCam bandpasses. 
+Therefore, we have developed \monster, a combination of reference catalogs similar to ATLAS-REFCAT2 but with the bandpass coverage and depth required to enable LSST. 
 
 \textbf{Note:} In this document we use \emph{source} to describe the bandpass a measurment is currently in and \emph{target} to describe the bandpass we would like to transform a measurement into. 
 
-\section{Summary of creation of \textit{the\_monster}}
-The creation of the \textit{the\_monster} can roughly speaking be broken into two components, the \textit{grizy}-bands and the *u*-band. 
+\section{Summary of creation of \monster}
+The creation of the \monster can roughly speaking be broken into two components, the \textit{grizy}-bands and the *u*-band. 
 
 
 \subsection{\textit{grizy-bands}}
 \begin{enumerate}
     \item For each input reference catalog, we retrieve a version containing only high-quality stellar sources.
     \item Subsequently, all input catalogs are converted into the LSST refcat format (htm7), see Catalog Conversion section.
-    \item Our reference catalog, \textit{the\_monster}, uses DES bandpasses internally for \textit{grizy}-bands. The next step is to convert all measured fluxes to the DES system. This is done by fitting a cubic spline to the ratio of source flux and target flux as a function of color. Additionally, for PS1, we found a magnitude-dependent offset that has been fit as well. The Colorterms section describes these fits in more detail.
+    \item Our reference catalog, \monster, uses DES bandpasses internally for \textit{grizy}-bands. The next step is to convert all measured fluxes to the DES system. This is done by fitting a cubic spline to the ratio of source flux and target flux as a function of color. Additionally, for PS1, we found a magnitude-dependent offset that has been fit as well. The Colorterms section describes these fits in more detail.
     \item With the external reference catalogs in hand, as well as colorterms for each measurement, we next create versions of each refcat that have been matched to \textit{Gaia\_DR3} sources, further selected to only include isolated sources (no neighbors within 1"), and transformed to the DES bandpass.
     \item Finally, we assemble the monster by reading in each transformed htm shard and adding measurements for each \textit{Gaia\_DR3} (a rank order of preference is used when multiple refcats have measurements of the same source) to the\_monster catalog. We add flux measurements for the DES-bandpasses as well as any target bandpasses for the\_monster catalog. In version one of the\_monster, \textit{the\_monster\_20240904}, LATISS fluxes and synthLSST fluxes are included as well.
 \end{enumerate}
@@ -112,7 +115,7 @@ The data was retrieved from \url{https://data.darkenergysurvey.org/public_calib/
 Data page is at \url{https://des.ncsa.illinois.edu/releases/other}
 
 \subsection{Color transformations}
-The DES bandpasses act as the internal bandpasses for \textit{the\_monster} and 
+The DES bandpasses act as the internal bandpasses for \monster and 
 
 \subsection{Gaia XP Synthetic Magnitudes}
 This catalog contains synthetic fluxes/magnitudes for stars in the following passbands:
