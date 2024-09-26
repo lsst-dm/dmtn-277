@@ -22,16 +22,17 @@ PS1 \citep{Chambers:2016} provides the depth in \emph{grizy}-bands but not the *
 Additionally, we would like to estimate fluxes in the LSSTCam bandpasses. 
 Therefore, we have developed \monster, a combination of reference catalogs similar to ATLAS-REFCAT2 but with the bandpass coverage and depth required to enable LSST. 
 
+The code and configuration used to create \monster can be found at \href{https://github.com/lsst-dm/the_monster}
 \textbf{Note:} In this document we use \emph{source} to describe the bandpass a measurment is currently in and \emph{target} to describe the bandpass we would like to transform a measurement into. 
 
 \section{Summary of creation of \monster}
-The creation of the \monster can roughly speaking be broken into two components, the \textit{grizy}-bands and the *u*-band. 
+The creation of the \monster can roughly speaking be broken into two components, the \textit{grizy}-bands and the \textit{u}-band. 
 
 
 \subsection{\textit{grizy-bands}}
 \begin{enumerate}
-    \item For each input reference catalog, we retrieve a version containing only high-quality stellar sources.
-    \item Subsequently, all input catalogs are converted into the LSST refcat format (htm7), see Catalog Conversion section.
+    \item For each input reference catalog, we retrieve a version containing only high-quality stellar sources. This process is generally described in Section \ref{sec:input} and details for each external input refcat are discussed in Section \ref{sec:details}
+    \item Subsequently, all input catalogs are converted into the LSST refcat format (htm7), see Section \ref{sec:conversion}.
     \item Our reference catalog, \monster, uses DES bandpasses internally for \textit{grizy}-bands. The next step is to convert all measured fluxes to the DES system. This is done by fitting a cubic spline to the ratio of source flux and target flux as a function of color. Additionally, for PS1, we found a magnitude-dependent offset that has been fit as well. The Colorterms section describes these fits in more detail.
     \item With the external reference catalogs in hand, as well as colorterms for each measurement, we next create versions of each refcat that have been matched to \textit{Gaia\_DR3} sources, further selected to only include isolated sources (no neighbors within 1"), and transformed to the DES bandpass.
     \item Finally, we assemble the monster by reading in each transformed htm shard and adding measurements for each \textit{Gaia\_DR3} (a rank order of preference is used when multiple refcats have measurements of the same source) to the\_monster catalog. We add flux measurements for the DES-bandpasses as well as any target bandpasses for the\_monster catalog. In version one of the\_monster, \textit{the\_monster\_20240904}, LATISS fluxes and synthLSST fluxes are included as well.
@@ -48,46 +49,47 @@ For the \textit{u}-band, the creation process is similar with a few notable exce
 The rest of this technote is organized as follows: each of the steps in monster creation is described in more detail. Then, we show all diagnostic plots for each input refcat.
 
 \section{Input Data}
+\label{sec:input}
 Here we describe the input catalogs used for the creation of The Monster. For each catalog, we include the origin, any cuts applied, and summary plots of the spatial distributions. The photometric catalogs used in this process are (in order of priority):
-\begin{itemize}
-    \item DES Y6 Calibration Stars
-    \item Gaia XP Synthetic Magnitudes
-    \item PS1
-    \item SkyMapper
-    \item VST
-\end{itemize}
+\begin{enumerate}
+    \item DES Y6 Calibration Stars (\ref{sec:des})
+    \item Gaia XP Synthetic Magnitudes (\ref{sec:gaiaxp})
+    \item PS1 (\ref{sec:ps1})
+    \item SkyMapper (\ref{sec:skymapper})
+    \item VST (\ref{sec:vst})
+\end{enumerate}
 
 For \textit{u}-band we use:
 \begin{itemize}
-    \item SDSS Standard Stars
-    \item Gaia XP Synthetic Magnitudes
-    \item Stellar Locus Regression-based magnitudes
+    \item SDSS Standard Stars (\ref{sec:sdss})
+    \item Gaia XP Synthetic Magnitudes (\ref{sec:gaiaxp})
+    \item Stellar Locus Regression-based magnitudes (\ref{sec:slr})
 \end{itemize}
 
 \section{Catalog conversion}
-To convert the catalogs into LSST format, we follow the instructions on \href{https://pipelines.lsst.io/modules/lsst.meas.algorithms/creating-a-reference-catalog.html}{how to generate an LSST reference catalog} using the \href{https://pipelines.lsst.io/modules/lsst.meas.algorithms/tasks/lsst.meas.algorithms.ConvertReferenceCatalogTask.html#lsst-task-lsst-meas-algorithms-convertreferencecatalog-convertreferencecatalogtask}{ConvertReferenceCatalogTask}. Each refcat requires its own configurations, which can be found in the \href{https://github.com/lsst-dm/the_monster/tree/main/configs}{configs folder of the\_monster github repo}. Here we include an example configuration used for the \hyperref[des-y6-calibration-stars]{DES Y6 Calibration Stars}.
+\label{sec:conversion}
+To convert the catalogs into LSST format, we follow the instructions on \href{https://pipelines.lsst.io/modules/lsst.meas.algorithms/creating-a-reference-catalog.html}{pipelines.lsst.io} on how to generate an LSST reference catalog using the \href{https://pipelines.lsst.io/modules/lsst.meas.algorithms/tasks/lsst.meas.algorithms.ConvertReferenceCatalogTask.html#lsst-task-lsst-meas-algorithms-convertreferencecatalog-convertreferencecatalogtask}{ConvertReferenceCatalogTask}. Each refcat requires its own configurations, which can be found in the \href{https://github.com/lsst-dm/the_monster/tree/main/configs}{configs folder of the\_monster github repo}.
+This conversion process shards the catalog into htm=7 trixels and creates a set of standard columns that include ra/dec coordinates as well as fluxes and errors in units of nJy.
 
 \section{Color Transformations}
+\label{sec:colors}
+There are a number of
 \subsection{To DES Bandpasses}
 \begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{./figures/color_terms/GaiaXP_to_DES_band_g_color_term.png}
-    \caption{Ratio of fluxes between GaiaXP synthetic photometry and DES for the \textit{g}-band as a function of \textit{g-i} color. The red line shows the cubic spline that defines our color transformation.}
-    \label{xp-to-des-g-colorterm}
+    \includegraphics[width=0.49\linewidth]{./figures/color_terms/GaiaXP_to_DES_band_g_color_term.png}
+    \includegraphics[width=0.49\linewidth]{./figures/color_terms/GaiaXP_to_DES_band_g_flux_residuals.png}
+    \caption{Left: The ratio of fluxes between GaiaXP synthetic photometry and DES for the \textit{g}-band as a function of \textit{g-i} color. The red line shows the cubic spline that defines our color transformation.
+    Right: Residuals between GaiaXP synthetic photometry transformed to DES and DES as a function of magnitude.}
 \end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{./figures/color_terms/GaiaXP_to_DES_band_g_flux_residuals.png}
-    \caption{Residuals between GaiaXP synthetic photometry transformed to DES and DES as a function of magnitude.}
-    \label{xp-to-des-g-residual}
-\end{figure}
-
 \subsection{To Synthetic LSST Bandpasses}
 \subsection{To LATISS Bandpasses}
 \subsection{To SDSS \textit{u}-band}
 
+\section{Stellar Locus Regression for the \textit{u}-band}
+\label{sec:slr}
+
 \section{Assembly of the\_monster v1}
+\label{sec:assembly}
 \subsection{Source Count Maps}
 \begin{figure}
     \centering
@@ -105,48 +107,43 @@ To convert the catalogs into LSST format, we follow the instructions on \href{ht
 \end{figure}
 
 \section{Detailed Descriptions}
+\label{sec:details}
 In the following subsections, we describe the external photometric catalogs used in the creation of the\_monster.
 
-\subsection{DES Y6 Calibration Stars}
+\subsection{Dark Energy Survey (DES) Y6 Calibration Stars}
+\label{sec:des}
 Data is described in \href{https://arxiv.org/abs/2305.01695}{Rykoff et al 2023}. Briefly, this is a catalog of calibrated reference stars generated by the Forward Calibration Method (FGCM) pipeline (arXiv:1706.01542) as part of the FGCM photometric calibration of the full Dark Energy Survey (DES) 6-Year data set (Y6). This catalog provides DES \textit{grizY} magnitudes for 17 million stars with \textit{i}-band magnitudes mostly in the range 16 < \textit{i} < 21, spread over the full DES footprint covering 5000 square degrees over the Southern Galactic Cap at galactic latitudes \textit{b} < -20 degrees (plus a few outlying fields disconnected from the main survey footprint). These stars are calibrated to a uniformity of better than 1.8 milli-mag (0.18\%) RMS over the survey area. The absolute calibration of the catalog is computed with reference to the STISNIC.007 spectrum of the Hubble Space Telescope CalSpec standard star C26202; including systematic errors, the absolute flux system is known at the approximately 1\% level. These stars provide a useful reference catalog for calibrating \textit{grizY}-band or \textit{grizY}-like band photometry in the Southern Hemisphere, particularly for observations within the DES footprint.
 
 The data was retrieved from \url{https://data.darkenergysurvey.org/public_calib/DES_6yr_CalibStarCat/Y6A1_FGCM_V3_3_1_PSF_ALL_STARS.fits} on May 2nd, 2023.
 
 Data page is at \url{https://des.ncsa.illinois.edu/releases/other}
 
-\subsection{Color transformations}
+\subsubsection{Color transformations}
 The DES bandpasses act as the internal bandpasses for \monster and 
 
 \subsection{Gaia XP Synthetic Magnitudes}
+\label{sec:gaiaxp}
 This catalog contains synthetic fluxes/magnitudes for stars in the following passbands:
 PS1std-grizy, PS1-grizy, DECam-grizY, SDSSstd-ugriz (and non-std), SkyMapper-u2uvgriz
 
-Photometry was generated from Gaia DR3 XPSpectra \cite{https://arxiv.org/abs/2206.06215}. 
+Photometry was generated from Gaia DR3 XPSpectra \href{https://arxiv.org/abs/2206.06215}. 
 
-This was done using GaiaXPy \cite{https://github.com/gaia-dpci/GaiaXPy/cd}.
+This was done using GaiaXPy \href{https://github.com/gaia-dpci/GaiaXPy/cd}.
 
-\subsection{PS1}
+\subsection{PanSTARRS1 (PS1)}
+\label{sec:ps1}
 \url{/sdf/group/rubin/datasets/refcats/htm/v1/ps1_pv3_3pi_20170110/README.txt}
 
-This reference catalog, intended for use with the LSST Science Pipelines \cite{https://pipelines.lsst.io} was constructed from the "3pi.pv3.20160422" DVO catalog of Processing Version 3 of the Pan-STARRS1 3pi survey, released to the Pan-STARRS1 Science Consortium. Following the public release of this data in December 2016 \cite{http://panstarrs.stsci.edu}, you may distribute this catalog freely.
+This reference catalog, intended for use with the LSST Science Pipelines \href{https://pipelines.lsst.io} was constructed from the "3pi.pv3.20160422" DVO catalog of Processing Version 3 of the Pan-STARRS1 3pi survey, released to the Pan-STARRS1 Science Consortium. Following the public release of this data in December 2016 \href{http://panstarrs.stsci.edu}, you may distribute this catalog freely.
 
 This format of the catalog contains 2,990,470,528 point sources at Dec > -30 deg to i ~ 22.5 mag, and has a total size of 423 GB. 
 
-Relevant papers for information and citation include:
-\begin{itemize}
-    \item Chambers et al., "The Pan-STARRS1 Surveys", 2016arXiv161205560C
-    \item Magnier et al., "The Pan-STARRS Data Processing System", 2016arXiv161205240M
-    \item Waters et al., "Pan-STARRS Pixel Processing: Detrending, Warping, Stacking", 2016arXiv161205245W
-    \item Magnier et al., "Pan-STARRS Pixel Analysis: Source Detection and Characterization", 2016arXiv161205244M
-    \item Magnier et al., "Pan-STARRS Photometric and Astrometric Calibration", 2016arXiv161205242M
-    \item Flewelling et al., "The Pan-STARRS1 Database and Data Products", 2016arXiv161205243F
-    \item Tonry et al., "The Pan-STARRS1 Photometric System", 2012ApJ...750...99T
-    \item Schlafly et al., "Photometric Calibration of the First 1.5 Years of the Pan-STARRS1 Survey", 2012ApJ...756..158S
-\end{itemize}
+Relevant papers for information and citation include: \citet{Chambers:2016}
 
 \subsection{SkyMapper}
-
+\label{sec:skymapper}
 \subsection{VST}
+\label{sec:vst}
 
 VST ATLAS DR4 downloaded from ESO archive.
 
@@ -161,12 +158,15 @@ sel &= (dat["UERRBITS"] < 0)      # no u-band processing flags
 \end{verbatim}
 
 \subsection{GAIA DR3 - The Astrometric Reference}
+\label{sec:gaiadr3}
 Original data: \url{https://www.cosmos.esa.int/web/gaia/dr3}
 
 The full Gaia DR3 catalog in indexed HTM format. This is the first LSST refcat to contain the full coordinate covariance.
 
 Magnitude range: $\sim$3 - 21 (G magnitude)
 
+\subsection{SDSS}
+\label{sec:sdss}
 
 
 % \section*{Methods}
