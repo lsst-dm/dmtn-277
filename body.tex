@@ -1,6 +1,6 @@
 \section{Introduction}
 In order to sucessfully comission the Vera C. Rubin Observatory and begin the Legacy Survey of Space and Time (LSST) we need to be able to perform astrometric and photometric calibrations of individual visits. 
-These calibrations will be done within the Rubin Science Pipelines by comparing instrumental measurements of fluxes and positions to those in a reference catalog.
+These calibrations will be done within the Rubin Science Pipelines by comparing instrumental measurements of fluxes and positions to those in a reference catalog and deriving zeropoints/corrections to the wcs. 
 The science requirements for relative photometric precision \citep[OSS-REQ-0387;][]{LSE-30} are defined as the RMS of repeated measurements of unresloved sources must be, at a miniumum, less than 8 mmag (12 mmag) for gri-band (uzy-band) observations. 
 Additionally, the requirements for the astrometric quality of data are defined in OSS-REQ-038 are such that the RMS on the distance between pairs of sources must be less than 10 milli-arcseconds, with an error on the accuracy of less than 50 mas in any axis. 
 To meet these requirements we need a reference catalog with the following features:
@@ -18,24 +18,57 @@ To meet these requirements we need a reference catalog with the following featur
 \end{itemize} 
 
 Previous catalogs such as ATLAS-REFCAT2 \citep{Tonry:2018} provide the all-sky coverage, but are not sufficently deep to provide the required source density. 
-PS1 \citep{Chambers:2016} provides the depth in \emph{grizy}-bands but not the *u*-band or the sky coverage below a declination of -30 deg. 
-Additionally, we would like to estimate fluxes in the LSSTCam bandpasses. 
-Therefore, we have developed \monster, a combination of reference catalogs similar to ATLAS-REFCAT2 but with the bandpass coverage and depth required to enable LSST. 
+PANSTAARS1\citep[PS1;][]{Chambers:2016} provides the depth in \emph{grizy}-bands but not the \emph{u}-band or the sky coverage below a declination of $\delta = -30$ deg. 
+Additionally, we would like our reference catalog to provides fluxes in the LSSTCam bandpasses. 
+Therefore we have developed \monster, a combination of reference catalogs similar to ATLAS-REFCAT2 but with the bandpass coverage and depth required to enable LSST. 
 
-The code and configuration used to create \monster can be found at \href{https://github.com/lsst-dm/the_monster}
+The code and configuration used to create \monster can be found at \url{https://github.com/lsst-dm/the_monster}\\
+
 \textbf{Note:} In this document we use \emph{source} to describe the bandpass a measurment is currently in and \emph{target} to describe the bandpass we would like to transform a measurement into. 
 
+In this document we describe how to access \monster in section \ref{sec:using}, section \ref{sec:summary} summarizes the creation of this catalog. Then, we discuss in more detail the input datasets (\ref{sec:input}), the 
+conversion of external refcats to the LSST format (\ref{sec:conversion}), derivations of the color transfomations (\ref{sec:colors}), the stellar locus regression (slr) method used to derive many of the \emph{u}-band fluxes. 
+Then, in section \ref{sec:assembly} we present the assembly of \monster including characterizing of version 1 of this catalog. 
+Finally, we include more detailed descriptions of each of the input catalogs for \monster in section \ref{sec:details}. 
+
+\section{Using \monster}
+\label{sec:using}
+Version 1 of \monster  has been added as a reference catalog to most of the repos at usdf and the summit. 
+To access this catalog from the butler use
+$$\texttt{datasetType="the\_monster\_20240904"}$$ 
+with the chained collection \texttt{"refcats"} or the run collection \texttt{"refcats/DM-46370/the\_monster\_20240904"}. 
+For each bandpass in \monster there are three columns: 
+\begin{itemize}
+    \item \texttt{monster\_\{system\}\_\{band\}\_flux} 
+    \item \texttt{monster\_\{system\}\_\{band\}\_fluxErr} 
+    \item \texttt{monster\_\{system\}\_\{band\}\_source\_flag}.
+\end{itemize}
+
+The systems and bands included are:
+\begin{itemize}
+    \item DES: grizy
+    \item SDSS: u
+    \item LATISS: grizy
+    \item SynthLSST: ugrizy.
+\end{itemize}
+
+The flat files for \monster in fits format can be accessed at the usdf at the location
+$$\texttt{path=/sdf/group/rubin/shared/refcats/the\_monster\_20240904/}$$
+
+
 \section{Summary of creation of \monster}
-The creation of the \monster can roughly speaking be broken into two components, the \textit{grizy}-bands and the \textit{u}-band. 
+\label{sec:summary}
+The creation of the \monster can divided into two components, the \textit{grizy}-bands and the \textit{u}-band. 
 
 
 \subsection{\textit{grizy-bands}}
 \begin{enumerate}
     \item For each input reference catalog, we retrieve a version containing only high-quality stellar sources. This process is generally described in Section \ref{sec:input} and details for each external input refcat are discussed in Section \ref{sec:details}
     \item Subsequently, all input catalogs are converted into the LSST refcat format (htm7), see Section \ref{sec:conversion}.
-    \item Our reference catalog, \monster, uses DES bandpasses internally for \textit{grizy}-bands. The next step is to convert all measured fluxes to the DES system. This is done by fitting a cubic spline to the ratio of source flux and target flux as a function of color. Additionally, for PS1, we found a magnitude-dependent offset that has been fit as well. The Colorterms section describes these fits in more detail.
+    \item Our reference catalog, \monster, uses DES bandpasses internally for \textit{grizy}-bands. So, the next step is to convert all measured fluxes to the DES system by derving color transformations. 
+    This is done by fitting a cubic spline to the ratio of source flux and target flux as a function of color for a high quality subset of the data over a restricted color range.
     \item With the external reference catalogs in hand, as well as colorterms for each measurement, we next create versions of each refcat that have been matched to \textit{Gaia\_DR3} sources, further selected to only include isolated sources (no neighbors within 1"), and transformed to the DES bandpass.
-    \item Finally, we assemble the monster by reading in each transformed htm shard and adding measurements for each \textit{Gaia\_DR3} (a rank order of preference is used when multiple refcats have measurements of the same source) to the\_monster catalog. We add flux measurements for the DES-bandpasses as well as any target bandpasses for the\_monster catalog. In version one of the\_monster, \textit{the\_monster\_20240904}, LATISS fluxes and synthLSST fluxes are included as well.
+    \item Finally, we assemble \monster by reading in each transformed htm shard and adding measurements for each \textit{Gaia\_DR3} (a rank order of preference is used when multiple refcats have measurements of the same source) to the\_monster catalog. We add flux measurements for the DES-bandpasses as well as any target bandpasses for the\_monster catalog. In version one of the\_monster, \textit{the\_monster\_20240904}, LATISS fluxes and synthLSST fluxes are included as well.
 \end{enumerate}
 
 \subsection{u-band}
@@ -46,11 +79,11 @@ For the \textit{u}-band, the creation process is similar with a few notable exce
     \item We use a stellar locus regression-based method to transform DES \textit{g}-band fluxes and \textit{g-r} colors into SDSS \textit{u}-band measurements.
 \end{itemize}
 
-The rest of this technote is organized as follows: each of the steps in monster creation is described in more detail. Then, we show all diagnostic plots for each input refcat.
-
 \section{Input Data}
 \label{sec:input}
-Here we describe the input catalogs used for the creation of The Monster. For each catalog, we include the origin, any cuts applied, and summary plots of the spatial distributions. The photometric catalogs used in this process are (in order of priority):
+Here we describe the input catalogs used for the creation of \monster. 
+%For each catalog, we include the origin, any cuts applied, and summary plots of the spatial distributions. 
+The photometric catalogs used in this process for the \emph{grizy}-bands are (in order of priority):
 \begin{enumerate}
     \item DES Y6 Calibration Stars (\ref{sec:des})
     \item Gaia XP Synthetic Magnitudes (\ref{sec:gaiaxp})
@@ -73,6 +106,7 @@ This conversion process shards the catalog into htm=7 trixels and creates a set 
 
 \section{Color Transformations}
 \label{sec:colors}
+Additionally, for PS1, we found a magnitude-dependent offset that has been fit as well. The Colorterms section describes these fits in more detail.
 There are a number of
 \subsection{To DES Bandpasses}
 \begin{figure}
