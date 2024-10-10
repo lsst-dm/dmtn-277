@@ -39,9 +39,9 @@ $$\texttt{datasetType="the\_monster\_20240904"}$$
 with the chained collection \texttt{"refcats"} or the run collection \texttt{"refcats/DM-46370/the\_monster\_20240904"}. 
 For each bandpass in \monster there are three columns: 
 \begin{itemize}
-    \item \texttt{monster\_\{system\}\_\{band\}\_flux} 
-    \item \texttt{monster\_\{system\}\_\{band\}\_fluxErr} 
-    \item \texttt{monster\_\{system\}\_\{band\}\_source\_flag}.
+    \item \texttt{monster\_\{system\}\_\{band\}\_flux}: estimated flux in band of system 
+    \item \texttt{monster\_\{system\}\_\{band\}\_fluxErr}: estimated fluxErr in band of system 
+    \item \texttt{monster\_\{system\}\_\{band\}\_source\_flag}: source of observation estimate was derived from.  
 \end{itemize}
 
 The systems and bands included are:
@@ -106,21 +106,61 @@ This conversion process shards the catalog into htm=7 trixels and creates a set 
 
 \section{Color Transformations}
 \label{sec:colors}
+The creation of \monster v1 required a number of different types of color transformations. 
+In this section we describe the derviation of these color transformations and show a few examples. 
+We include diagnostic plots for all color transformations used in \monster in appendix \ref{app:colorplots}
+Initially, all of the inuput catalogs flux measurements must be transformed into the internal bandpasses of \monster (DES for \emph{grizy}-band SDSS for \emph{u}-band); sections \ref{sec:todes} and \ref{sec:tosdss} show examples of this process. 
+Subsequently during the assembly of \monster, the internal bandpasses must be transformed into the target bandpasses for \monster. 
+This is done using estimated transmissions for LSST and emprically for LATISS. 
+
+% want a table with inital cat, target cat, number of nodes, color range, fit flux offset, source flag
+
+\subsection{Fitting color transformations}
+To derive color transformations we perform a cubic-spline base fit to derive a relation between a color mesurement the initial photometric bandpass and the ratio of fluxes between the inital and target bandpasses.
+For example, the transformation from GaiaXP's estimate of DES g-band (initial bandpass) to DES g-band (target bandpass) is shown as a red line in figure \ref{fig:color-xp-g}. 
+
+This fit is done by taking a region where the initial and target refcats overlap. 
+Over this region we read in each refcat and match the target refcat to gaiadr3 to ensure stellar purity, match to the initial refcat and perform a selection for good stars using i-band as a general reference.
+We now have a matched catalog with flux measurements in both systems
+
+\begin{itemize}
+\item compute colors g-i for gri bands and i-z for zy bands. 
+\item cut to reasonable color range defined for each catalog 
+\item nodes for spline are evenly spaced in color 
+\item fit is performed 
+\item in some cases we used a flux offset
+\item in a one case we also find a magnitude based offset
+\end{itemize}
 Additionally, for PS1, we found a magnitude-dependent offset that has been fit as well. The Colorterms section describes these fits in more detail.
 There are a number of
 \subsection{To DES Bandpasses}
+\label{sec:todes}
 \begin{figure}
     \includegraphics[width=0.49\linewidth]{./figures/color_terms/GaiaXP_to_DES_band_g_color_term.png}
     \includegraphics[width=0.49\linewidth]{./figures/color_terms/GaiaXP_to_DES_band_g_flux_residuals.png}
     \caption{Left: The ratio of fluxes between GaiaXP synthetic photometry and DES for the \textit{g}-band as a function of \textit{g-i} color. The red line shows the cubic spline that defines our color transformation.
     Right: Residuals between GaiaXP synthetic photometry transformed to DES and DES as a function of magnitude.}
+    \label{fig:color-xp-g}
 \end{figure}
-\subsection{To Synthetic LSST Bandpasses}
-\subsection{To LATISS Bandpasses}
 \subsection{To SDSS \textit{u}-band}
+\label{sec:tosdss}
+\subsection{To Synthetic LSST Bandpasses}
+\begin{itemize}
+    \item FGCM star templates cite rykoff fgcm? 
+    \item baseline v1.9 lsst transmissions \url{https://raw.githubusercontent.com/lsst/throughputs/main/baseline/total_{filter_}.dat}
+    \item des passbands \url{https://noirlab.edu/science/sites/default/files/media/archives/documents/scidoc1884.txt}
+    \item estimated color terms!
+\end{itemize}
+\subsection{To LATISS Bandpasses}
+\begin{itemize}
+    \item fgcm stars from coadd run. What collection when was the data taken? 
+\end{itemize}
 
 \section{Stellar Locus Regression for the \textit{u}-band}
 \label{sec:slr}
+\begin{itemize}
+    \item magic 
+\end{itemize}
 
 \section{Assembly of the\_monster v1}
 \label{sec:assembly}
@@ -182,7 +222,8 @@ sel &= (dat["UERRBITS"] < 0)      # no u-band processing flags
 \label{sec:gaiadr3}
 Original data: \url{https://www.cosmos.esa.int/web/gaia/dr3}
 
-The full Gaia DR3 catalog in indexed HTM format. This is the first LSST refcat to contain the full coordinate covariance.
+The full Gaia DR3 catalog in indexed HTM format. 
+This is the first LSST refcat to contain the full coordinate covariance.
 
 Magnitude range: $\sim$3 - 21 (G magnitude)
 
