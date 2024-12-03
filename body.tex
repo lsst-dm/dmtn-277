@@ -1,46 +1,56 @@
 \section{Introduction}
-In order to sucessfully comission the Vera C. Rubin Observatory and begin the Legacy Survey of Space and Time (LSST) we need to be able to perform astrometric and photometric calibrations of individual visits. 
-Initially. these calibrations will be done within the Rubin Science Pipelines by comparing instrumental measurements of fluxes and positions to those in a reference catalog and deriving potometric zeropoints or astrometric corrections to the world coordinate system (wcs). 
-Subsequently, we will use the FGCM (citation), an uber-calibration method, to derive photometric zeropoints for the LSST data and achieve a photometric precision of $\sim$ 1 mmag. %\citep{burke} 
-However, during commissioning and early operations our requirements for photometric precision less rigorous. 
+In order to sucessfully commission the Vera C. Rubin Observatory and begin the Legacy Survey of Space and Time (LSST) we need to be able to perform astrometric and photometric calibrations of individual visits.
+Initially, these calibrations will be done within the Rubin Science Pipelines by comparing instrumental measurements of fluxes and positions to those in a reference catalog and deriving photometric zeropoints or astrometric solutions to the World Coordinate System (WCS).
+Subsequently, we will use the Forward Global Calibration Method \citep[FGCM;][]{2018AJ....155...41B}, an uber-calibration method, to derive photometric zeropoints for the LSST data and achieve a photometric precision of $\sim$ 1 mmag.
+However, during commissioning and early operations our requirements for photometric precision are less rigorous.
 
-The science requirements for relative photometric precision \citep[OSS-REQ-0387;][]{LSE-30} are defined as the RMS of repeated measurements of unresloved sources must be, at a miniumum, less than 8 mmag (12 mmag) for gri-band (uzy-band) observations. 
-Additionally, the requirements for the astrometric quality of data are defined in OSS-REQ-038 are such that the RMS on the distance between pairs of sources must be less than 10 milli-arcseconds, with an error on the accuracy of less than 50 mas in any axis. 
+The science requirements for photometric repeatability \citep[OSS-REQ-0387;][]{LSE-30} stipulate that the RMS photometric spread of repeated measurements of unresolved sources must be less than 5 mmag (7.5 mmag) for \emph{gri}-band (\emph{uzy}-band) observations.
+Additionally, the requirements for the astrometric quality of data are defined in OSS-REQ-0388 such that the median measurement error on the distance between pairs of sources must be less than 10 milli-arcseconds, with an error on the absolute accuracy of positions of less than 50 milliarcseconds in any axis.
 To meet these requirements we need a reference catalog with the following features:
 
 \begin{itemize}
-    \item The catalog must cover any location we will want to point the telescope. 
-    This includes the full sky with declination < 30 deg, althogh we have generated an all-sky catalog. 
-    \item There must be flux estimates in all bandpasses, \textit{ugrizy} for LSSTCam and \textit{grizy} for LATISS. 
-    \item The number density of un-saturated high-signal to noise sources must be high enough to calibrate a single LSSTCam CCD. 
+    \item The catalog must cover any location we will want to point the telescope.
+    For LSST, this includes the full sky with declination < 30 deg, but for completeness we have generated an all-sky catalog.
+    \item There must be flux estimates in all bandpasses, \textit{ugrizy} for LSSTCam and \textit{grizy} for LATISS.
+    \item The number density of un-saturated high signal-to-noise (S/N) sources must be high enough to calibrate a single LSSTCam CCD.
     This requires there to be at least 10 reference sources per \texttt{NSIDE}=256 healpixel on the sky.
-    The size of a detector on the sky is $\sim 0.05\,\mathrm{deg}^2$  equal to that of an \texttt{NSIDE}=256 healpixel. 
-    \item High precision measurements of the positions of unresolved sources. 
-    This is achived by using \textit{Gaia}-DR3 as the basis for the objects in our catalog with full position and proper motion measurements included. 
-    
-\end{itemize} 
+    The size of a detector on the sky is $\sim 0.05\,\mathrm{deg}^2$, equal to the area of an \texttt{NSIDE}=256 healpixel.
+    \item High precision measurements of the positions of unresolved sources.
+    This is achieved by using \textit{Gaia} Data Release 3 (DR3; \citealt{GaiaCollaboration:2023}) as the basis for the objects in our catalog, with the full high-quality position and proper motion measurements from \textit{Gaia}-DR3 included.
+\end{itemize}
 
-Previous catalogs such as ATLAS-REFCAT2 \citep{Tonry:2018} provide the all-sky coverage, but are not sufficently deep to provide the required source density. 
-PANSTAARS1\citep[PS1;][]{Chambers:2016} provides the depth in \emph{grizy}-bands but not the \emph{u}-band or the sky coverage below a declination of $\delta = -30$ deg. 
-Additionally, we would like our reference catalog to provides fluxes in the LSSTCam bandpasses to avoid requiring the science pipelines to apply colorterms when processing the data.
-Therefore, we have developed \monster, a combination of reference catalogs, containting only stellar sources, similar to ATLAS-REFCAT2 but with the bandpass coverage and depth required to enable LSST. 
+Previous catalogs such as ATLAS-REFCAT2 \citep{Tonry:2018} provide all-sky coverage, but are not sufficiently deep to provide the required source density at magnitudes probed by LSST images.
+PANSTARRS-1\citep[PS1;][]{Chambers:2016} provides sufficient depth in \emph{grizy}-bands but does not have \emph{u}-band, and its sky coverage is limited to declinations above $\delta = -30$ deg.
+Additionally, we would like our reference catalog to provides fluxes in the native LSSTCam (or LATISS) bandpasses to avoid requiring the science pipelines to apply transformations including color terms when processing the data.
+Therefore, we have developed \monster, a combination of reference catalogs, containing only stellar sources, similar to ATLAS-REFCAT2 but with the bandpass coverage and depth required to enable LSST.
 
 The code and configuration used to create \monster can be found at \url{https://github.com/lsst-dm/the_monster}\\
 
-\textbf{Note:} We use \emph{source} to describe the bandpass a measurment is currently in and \emph{target} to describe the bandpass we would like to transform a measurement into. 
+\textbf{Note:} We use \emph{source} to describe the bandpass a measurement is currently in and \emph{target} to describe the bandpass we would like to transform a measurement into.
 
-In this document we describe how to access \monster in section \ref{sec:using}, section \ref{sec:summary} summarizes the creation of this catalog. Then, we discuss in more detail the input datasets (\ref{sec:input}), the 
-conversion of external refcats to the LSST format (\ref{sec:conversion}), derivations of the color transfomations (\ref{sec:colors}), the stellar locus regression (slr) method used to derive many of the \emph{u}-band fluxes. 
-Then, in section \ref{sec:assembly} we present the assembly of \monster including characterizing of version 1 of this catalog. 
-Finally, we include more detailed descriptions of each of the input catalogs for \monster in section \ref{sec:details}. 
+In this document we describe how to access \monster in Section \ref{sec:using}. Section \ref{sec:summary} summarizes the creation of this catalog. In following sections, we discuss in more detail the input datasets (Section \ref{sec:input}), the
+conversion of external refcats to the LSST format (Section \ref{sec:conversion}), derivations of the color transformations (Section \ref{sec:colors}), and the stellar locus regression (slr) method used to derive many of the \emph{u}-band fluxes.
+Then, in Section \ref{sec:assembly} we present the assembly of \monster including characterizing of version 1 of this catalog.
+Finally, we include more detailed descriptions of each of the input catalogs for \monster in Section \ref{sec:details}.
 
 \section{Using \monster}
 \label{sec:using}
-Version 1 of \monster  has been added as a reference catalog to repos at USDF and the summit. 
+Version 1 of \monster has been added as a reference catalog to butler repositories at the USDF and the summit.
 To access this catalog from the butler use
-$$\texttt{datasetType="the\_monster\_20240904"}$$ 
-with the chained collection \texttt{"refcats"} or the run collection \texttt{"refcats/DM-46370/the\_monster\_20240904"}. 
-For each bandpass in \monster there are three columns: 
+$$\texttt{datasetType="the\_monster\_20240904"}$$
+with the chained collection \texttt{"refcats"} or the run collection \texttt{"refcats/DM-46370/the\_monster\_20240904"}.
+The reference catalogs are sharded into \texttt{htm} level 7 trixels; to retrieve a reference catalog, one must thus specify the \texttt{"htm7"} trixel ID in the \texttt{dataId}. Having initialized the butler with, for example:
+
+$$\texttt{from lsst.daf.butler import Butler}$$
+$$\texttt{butler = Butler("embargo", collections="refcats")}$$
+
+one can then retrieve a reference catalog for a given htm id (in this case, \texttt{"htm7=203118"}) via the following:
+
+$$\texttt{refcat = butler.get("the\_monster\_20240904", dataId=\{"htm7":203118\})}$$
+
+ADD MORE DETAIL HERE ABOUT WHAT'S IN THE CATALOGS.
+
+For each photometric system and bandpass in \monster there are three columns: 
 \begin{itemize}
     \item \texttt{monster\_\{system\}\_\{band\}\_flux}: estimated flux in band of system 
     \item \texttt{monster\_\{system\}\_\{band\}\_fluxErr}: estimated fluxErr in band of system 
