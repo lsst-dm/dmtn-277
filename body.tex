@@ -11,11 +11,11 @@ To meet these requirements we need a reference catalog with the following featur
 \begin{itemize}
     \item The catalog must cover any location we will want to point the telescope.
     For LSST, this includes the full sky with declination < 30 deg, but for completeness we have generated an all-sky catalog.
-    \item There must be flux estimates in all bandpasses, \textit{ugrizy} for LSSTCam and \textit{grizy} for LATISS.
+    \item There must be flux estimates in all bandpasses, \textit{ugrizy} for LSSTCam and LSSTComCam, and \textit{grizy} for LATISS.
     \item The number density of un-saturated high signal-to-noise (S/N) sources must be high enough to calibrate a single LSSTCam CCD.
     This requires there to be at least 10 reference sources per \texttt{NSIDE}=256 healpixel on the sky.
     The size of a detector on the sky is $\sim 0.05\,\mathrm{deg}^2$, equal to the area of an \texttt{NSIDE}=256 healpixel.
-    \item High precision measurements of the positions of unresolved sources.
+    \item The catalog must contain high precision measurements of the positions of unresolved sources.
     This is achieved by using \textit{Gaia} Data Release 3 (DR3; \citealt{GaiaCollaboration:2023}) as the basis for the objects in our catalog, with the full high-quality position and proper motion measurements from \textit{Gaia}-DR3 included.
 \end{itemize}
 
@@ -24,7 +24,7 @@ PANSTARRS-1\citep[PS1;][]{Chambers:2016} provides sufficient depth in \emph{griz
 Additionally, we would like our reference catalog to provides fluxes in the native LSSTCam (or LATISS) bandpasses to avoid requiring the science pipelines to apply transformations including color terms when processing the data.
 Therefore, we have developed \monster, a combination of reference catalogs, containing only stellar sources, similar to ATLAS-REFCAT2 but with the bandpass coverage and depth required to enable LSST.
 
-The code and configuration used to create \monster can be found at \url{https://github.com/lsst-dm/the_monster}\\
+The code and configuration used to create \monster can be found at \url{https://github.com/lsst-dm/the_monster}.\\
 
 \textbf{Note:} We use \emph{source} to describe the bandpass a measurement is currently in and \emph{target} to describe the bandpass we would like to transform a measurement into.
 
@@ -35,10 +35,10 @@ Finally, we include more detailed descriptions of each of the input catalogs for
 
 \section{Using \monster}
 \label{sec:using}
-Version 1 of \monster has been added as a reference catalog to butler repositories at the USDF and the summit.
+Version 2 of \monster has been added as a reference catalog to butler repositories at the USDF and the summit.
 To access this catalog from the butler use
-$$\texttt{datasetType="the\_monster\_20240904"}$$
-with the chained collection \texttt{"refcats"} or the run collection \texttt{"refcats/DM-46370/the\_monster\_20240904"}.
+$$\texttt{datasetType="the\_monster\_20250219"}$$
+with the chained collection \texttt{"refcats"} or the run collection \texttt{"refcats/DM-49042/the\_monster\_20250219"}.
 The reference catalogs are sharded into \texttt{htm} level 7 trixels; to retrieve a reference catalog, one must thus specify the \texttt{"htm7"} trixel ID in the \texttt{dataId}. Having initialized the butler with, for example:
 
 $$\texttt{from lsst.daf.butler import Butler}$$
@@ -46,15 +46,15 @@ $$\texttt{butler = Butler("embargo", collections="refcats")}$$
 
 one can then retrieve a reference catalog for a given htm id (in this case, \texttt{"htm7=203118"}) via the following:
 
-$$\texttt{refcat = butler.get("the\_monster\_20240904", dataId=\{"htm7":203118\})}$$
+$$\texttt{refcat = butler.get("the\_monster\_20250219", dataId=\{"htm7":203118\})}$$
 
 ADD MORE DETAIL HERE ABOUT WHAT'S IN THE CATALOGS.
 
-For each photometric system and bandpass in \monster there are three columns: 
+For each photometric system and bandpass in \monster there are three columns:
 \begin{itemize}
-    \item \texttt{monster\_\{system\}\_\{band\}\_flux}: estimated flux in band of system 
-    \item \texttt{monster\_\{system\}\_\{band\}\_fluxErr}: estimated fluxErr in band of system 
-    \item \texttt{monster\_\{system\}\_\{band\}\_source\_flag}: source of observation estimate was derived from.  
+    \item \texttt{monster\_\{system\}\_\{band\}\_flux}: estimated flux in band of system
+    \item \texttt{monster\_\{system\}\_\{band\}\_fluxErr}: estimated fluxErr in band of system
+    \item \texttt{monster\_\{system\}\_\{band\}\_source\_flag}: flag denoting which catalog was the source of the flux measurement.
 \end{itemize}
 
 The systems and bands included are:
@@ -62,16 +62,18 @@ The systems and bands included are:
     \item DES: grizy
     \item SDSS: u
     \item LATISS: grizy
-    \item SynthLSST: ugrizy.
+    \item ComCam: ugrizy.
 \end{itemize}
 
+Additionally, positions, proper motions, parallaxes, magnitudes, and relevant flag columns from Gaia DR3 are included for all entries in \monster.
+
 The flat files for \monster in fits format can be accessed at the USDF at the location
-$$\texttt{path=/sdf/group/rubin/shared/refcats/the\_monster\_20240904/}$$
+$$\texttt{path=/sdf/group/rubin/shared/refcats/the\_monster\_20250219/}$$
 
 
 \section{Summary of creation of \monster}
 \label{sec:summary}
-The creation of the \monster can divided into two components, the \textit{grizy}-bands and the \textit{u}-band. 
+The creation of the \monster can divided into two components, the \textit{grizy}-bands and the \textit{u}-band.
 
 
 \subsection{\textit{grizy-bands}}
