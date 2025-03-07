@@ -190,6 +190,28 @@ Need to go find/make these figures.
 \section{Stellar Locus Regression for the \textit{u}-band}
 \label{sec:slr}
 
+One of the more challenging aspects in creating the monster was ensuring that there were an adequate density of non-saturated u-band sources in the catalog. 
+Since homogenous full sky u-band photometry at the depth required to calibrate LSSTCam exposures does not exist, we decided to use stellar locus regression to estimate the u-band flux of stars.
+This allows us to derive a relations between the DECam \textit{g}-band flux plus g-r color and the SDSS \textit{u}-band flux of stars. 
+
+To derive this relation we use SDSS DR14 \textit{u}-band measurements over a low extinction portion of Stripe-82 defined by $20 < \alpha < 35$ and $-4 < \delta < 4$ and only include objects measured with a S/N > 10 in the \textit{u}-band. 
+Subsequently, we fit for the ratio of flux in $g_{des}$ to $u_{sdss}$ as a function of $g_{des}-r_{des}$ color over the range $0.25 <  g_{des}-r_{des} < 0.8$, the left plot of Figure \ref{fig:slr_spline} shows this relation and its spline fit in red. 
+Additionally, we found a magnitude dependent offset (after applying the color transfomation) that we show in the middle panel of Figure \ref{fig:slr_spline}. 
+After applying both of these color transfomations it can be seen on the right hand panel that there is no longer a color or magnitude dependence in this relation. 
+But, to access the performance of this relation and confirm its validity of this accross a larger area we must compare these synthetic SDSS \textit{u}-band fluxes to observations.
+
+\begin{figure}
+    \includegraphics[width=0.32\linewidth]{./figures/u-band/uslr/transformed_to_SDSS_band_g_slr.png}
+    \includegraphics[width=0.32\linewidth]{./figures/u-band/uslr/transformed_to_SDSS_band_g_slr_mag_offset.png}
+    \includegraphics[width=0.32\linewidth]{./figures/u-band/uslr/transformed_to_SDSS_band_g_slr_flux_residuals.png}
+    \label{fig:slr_spline}
+    \caption{
+    Left: The ratio of fluxes between $g_{des}$ and $u_{sdss}$ as a function of $g_{des}-r_{des}$ color. The red line shows the cubic spline that defines our color transformation.
+    Middle: The ratio of fluxes between $u_{slr}$ and $u_{sdss}$ as a function of magnitude demonstrating the need for correcting a magnitude dependence. 
+    Right: Residuals between $u_{slr}$ synthetic photometry and SDSS as a function of magnitude showing a small scatter.}
+\end{figure}
+\subsection{Validation of SLR}
+
 \begin{itemize}
     \item find some citations for SLR
     \item magic 
