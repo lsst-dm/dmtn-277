@@ -194,7 +194,7 @@ One of the more challenging aspects in creating the monster was ensuring that th
 Since homogenous full sky u-band photometry at the depth required to calibrate LSSTCam exposures does not exist, we decided to use stellar locus regression to estimate the u-band flux of stars.
 This allows us to derive a relations between the DECam \textit{g}-band flux plus g-r color and the SDSS \textit{u}-band flux of stars. 
 
-To derive this relation we use SDSS DR14 \textit{u}-band measurements over a low extinction portion of Stripe-82 defined by $20 < \alpha < 35$ and $-4 < \delta < 4$ and only include objects measured with a S/N > 10 in the \textit{u}-band. 
+To derive this relation we use SDSS DR16 \textit{u}-band measurements over a low extinction portion of Stripe-82 defined by $20 < \alpha < 35$ and $-4 < \delta < 4$ and only include objects measured with a S/N > 10 in the \textit{u}-band. 
 Subsequently, we fit for the ratio of flux in $g_{des}$ to $u_{sdss}$ as a function of $g_{des}-r_{des}$ color over the range $0.25 <  g_{des}-r_{des} < 0.8$, the left plot of Figure \ref{fig:slr_spline} shows this relation and its spline fit in red. 
 Additionally, we found a magnitude dependent offset (after applying the color transfomation) that we show in the middle panel of Figure \ref{fig:slr_spline}. 
 After applying both of these color transfomations it can be seen on the right hand panel that there is no longer a color or magnitude dependence in this relation. 
@@ -211,6 +211,18 @@ But, to access the performance of this relation and confirm its validity of this
     Right: Residuals between $u_{slr}$ synthetic photometry and SDSS as a function of magnitude showing a small scatter.}
 \end{figure}
 \subsection{Validation of SLR}
+Initially we compare our derived magnitudes with those of SDSS. There results of this are shown in figure 
+\begin{figure}
+    \includegraphics[width=0.64\linewidth]{./figures/u-band/uslr/uslr-usdss_full_map.png}
+    \includegraphics[width=0.32\linewidth]{./figures/u-band/uslr/uslr-usdss_highglat_hist.png}
+
+    \label{fig:sdss_compare}
+    \caption{
+    Left: A map showing the mean value of $u_{slr}$ - $u_{sdss}$ as a function of on sky position computed at \texttt{NSIDE}=32 resoulution.  
+    Right: Histogram of $u_{slr}$ - $u_{sdss}$ for the high galactic latitude ($|b| > 30$) regions of the map.}
+\end{figure}
+
+
 
 \begin{itemize}
     \item find some citations for SLR
