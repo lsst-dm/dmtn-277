@@ -73,7 +73,8 @@ $$\texttt{path=/sdf/group/rubin/shared/refcats/the\_monster\_20250219/}$$
 
 \section{Summary of creation of \monster}
 \label{sec:summary}
-The creation of the \monster can divided into two components, the \textit{grizy}-bands and the \textit{u}-band.
+The creation of the \monster can divided into two components, the \textit{grizy}-bands and the \textit{u}-band. 
+In Table 1 we describe some properties of the monster. 
 
 
 \subsection{\textit{grizy-bands}}
@@ -97,6 +98,8 @@ For the \textit{u}-band, the creation process is similar with a few notable exce
     Therefore, we additionally use a stellar locus regression-based (SLR) method to estimate the \textit{u}-band flux for an additional set of stars. 
     This SLR method uses DES \textit{g}-band fluxes and \textit{g-r} colors to estimate the SDSS \textit{u}-band measurements and is described in Section \ref{sec:slr}
 \end{itemize}
+
+
 
 \section{Input Data}
 \label{sec:input}
@@ -169,6 +172,7 @@ Need to go find/make these figures.
 %     \label{fig:color-xp-u}
 % \end{figure}
 \subsection{To Synthetic LSST Bandpasses}
+To esitimate
 \begin{itemize}
     \item FGCM star templates cite rykoff fgcm? 
     \item baseline v1.9 lsst transmissions \url{https://raw.githubusercontent.com/lsst/throughputs/main/baseline/total_{filter_}.dat}
@@ -210,16 +214,18 @@ But, to access the performance of this relation and confirm its validity of this
     Middle: The ratio of fluxes between $u_{slr}$ and $u_{sdss}$ as a function of magnitude demonstrating the need for correcting a magnitude dependence. 
     Right: Residuals between $u_{slr}$ synthetic photometry and SDSS as a function of magnitude showing a small scatter.}
 \end{figure}
+
+
 \subsection{Validation of SLR}
-Initially we compare our derived magnitudes with those of SDSS. There results of this are shown in figure 
+Initially we compare our derived magnitudes with those of SDSS. There results of this are shown in Figure \ref{fig:slr_sdss_compare}. The left panel shows the mean residual as a function of position on the sky, there is a noticable dependence on galactic lattitude with better performance in low extinction/high-galactic lattitude regions. The right hand plot shows a histogram of the residuals for the high galactic lattitude (|b| > 30) subset of objects where we see a scatter of 20 mmag.  
 \begin{figure}
     \includegraphics[width=0.64\linewidth]{./figures/u-band/uslr/uslr-usdss_full_map.png}
     \includegraphics[width=0.32\linewidth]{./figures/u-band/uslr/uslr-usdss_highglat_hist.png}
 
-    \label{fig:sdss_compare}
+    \label{fig:slr_sdss_compare}
     \caption{
     Left: A map showing the mean value of $u_{slr}$ - $u_{sdss}$ as a function of on sky position computed at \texttt{NSIDE}=32 resoulution.  
-    Right: Histogram of $u_{slr}$ - $u_{sdss}$ for the high galactic latitude ($|b| > 30$) regions of the map.}
+    Right: Histogram of $u_{slr}$ - $u_{sdss}$ for the high galactic latitude ($|b| > 30$) regions of the map \textbf{axis label wrong fix}. }
 \end{figure}
 
 
@@ -233,6 +239,26 @@ The SLR method we employed uses
 
 \section{Assembly of the\_monster v1}
 \label{sec:assembly}
+
+\begin{table}[htbp]
+    \centering
+    \label{tab:summary}
+    
+    \begin{tabular}{|c | c | c | c | c |}
+        \hline
+        \textbf{Band} & \textbf{internal bandpass} & \textbf{Color Range} & \textbf{Source Density} & \textbf{Magnitude Range} \\
+        \hline
+        u             &  SDSS                      & g-r=0.35--0.7        & 1000                    & XX--XX                   \\
+        g             & DES                        & g-i=0.35--3.0        & 5000                    & XX--XX                     \\
+        r             & DES                        & g-i=0.35--3.0        & 3000                    & XX--XX                     \\
+        i             & DES                        & g-i=0.35--3.0        & 200                     & XX--XX                      \\
+        z             & DES                        & i-z=0.0--0.7         & 200                     & XX--XX                     \\
+        y             & DES                        & i-z=1.5--30          & 200                     & XX--XX                      \\
+        \hline
+    \end{tabular}
+    \caption{Summary of \monster}
+\end{table}
+
 
 \input{monster_maps}
 
