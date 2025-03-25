@@ -48,8 +48,6 @@ one can then retrieve a reference catalog for a given htm id (in this case, \tex
 
 $$\texttt{refcat = butler.get("the\_monster\_20250219", dataId=\{"htm7":203118\})}$$
 
-ADD MORE DETAIL HERE ABOUT WHAT'S IN THE CATALOGS.
-
 For each photometric system and bandpass in \monster there are three columns:
 \begin{itemize}
     \item \texttt{monster\_\{system\}\_\{band\}\_flux}: estimated flux in band of system
@@ -70,18 +68,21 @@ Additionally, positions, proper motions, parallaxes, magnitudes, and relevant fl
 The flat files for \monster in fits format can be accessed at the USDF at the location
 $$\texttt{path=/sdf/group/rubin/shared/refcats/the\_monster\_20250219/}$$
 
+\subsection{Applying spline color terms}
+
+An example of how to retrieve the splines from the git repository and apply them to transform fluxes is found at \href{https://github.com/lsst-dm/dmtn-277/blob/main/notebooks/apply_monster_transformations.ipynb}{this link}.
 
 \section{Summary of creation of \monster}
 \label{sec:summary}
-The creation of the \monster can divided into two components, the \textit{grizy}-bands and the \textit{u}-band. 
-In Table 1 we describe some properties of the monster. 
+The creation of the \monster can divided into two components, the \textit{grizy}-bands and the \textit{u}-band.
+In Table 1 we describe some properties of the monster.
 
 
 \subsection{\textit{grizy-bands}}
 \begin{enumerate}
     \item For each input reference catalog, we retrieve a version containing only high-quality stellar sources. This process is generally described in Section \ref{sec:input} and details for each external input refcat are discussed in Section \ref{sec:details}
     \item Subsequently, all input catalogs are converted into the LSST refcat format (htm7), see Section \ref{sec:conversion}.
-    \item Our reference catalog, \monster, uses DES bandpasses internally for \textit{grizy}-bands. So, the next step is to convert all measured fluxes to the DES system by derving color transformations. 
+    \item Our reference catalog, \monster, uses DES bandpasses internally for \textit{grizy}-bands. So, the next step is to convert all measured fluxes to the DES system by derving color transformations.
     This is done by fitting a cubic spline to the ratio of source flux and target flux as a function of color for a high quality subset of the data over a restricted color range.
     \item With the external reference catalogs in hand, as well as colorterms for each measurement, we can create versions of each source-refcat (e.g PS1) that have been matched to \textit{Gaia\_DR3} sources, further selected to only include isolated sources (no neighbors within 1"), and transformed to the DES bandpass.
     \item Finally, we assemble \monster by reading in each transformed htm shard and adding measurements for each \textit{Gaia\_DR3} (a rank order of preference is used when multiple refcats have measurements of the same source) to the\_monster catalog. 
