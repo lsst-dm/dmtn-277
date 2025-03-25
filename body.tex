@@ -108,19 +108,21 @@ Here we describe the input catalogs used for the creation of \monster.
 %For each catalog, we include the origin, any cuts applied, and summary plots of the spatial distributions. 
 The photometric catalogs used in this process for the \emph{grizy}-bands are (in order of priority):
 \begin{enumerate}
-    \item DES Y6 Calibration Stars (\ref{sec:des})
-    \item Gaia XP Synthetic Magnitudes (\ref{sec:gaiaxp})
-    \item PS1 (\ref{sec:ps1})
-    \item SkyMapper (\ref{sec:skymapper})
-    \item VST (\ref{sec:vst})
+    \item DES Y6 Calibration Stars (\ref{sec:des}): calibrated photometric reference stars from Dark Energy Survey (DES) year 6 data.
+    \item Gaia XP Synthetic Magnitudes (\ref{sec:gaiaxp}): synthetic photometry generated from Gaia spectrophotometry using the GaiaXPy package.
+    \item PS1 (\ref{sec:ps1}): photometry from the Pan-STARRS1 3pi survey, containing sources at declinations above -30 degrees.
+    \item SkyMapper (\ref{sec:skymapper}): southern-sky photometry from Data Release 2 of the SkyMapper survey.
+    \item VST (\ref{sec:vst}): Data Release 4 of data from VST ATLAS survey.
 \end{enumerate}
 
 For \textit{u}-band we use:
 \begin{itemize}
-    \item SDSS Standard Stars (\ref{sec:sdss})
-    \item Gaia XP Synthetic Magnitudes (\ref{sec:gaiaxp})
-    \item Stellar Locus Regression-based magnitudes (SLR) (\ref{sec:slr})
+    \item SDSS Standard Stars (\ref{sec:sdss}): stars from Sloan Digital Sky Survey (SDSS) Data Release 16 with signal-to-noise greater than 5.
+    \item Gaia XP Synthetic Magnitudes (\ref{sec:gaiaxp}): synthetic photometry generated from Gaia spectrophotometry using the GaiaXPy package.
+    \item Stellar Locus Regression-based magnitudes (SLR) (\ref{sec:slr}): \textit{u}-band magnitudes based on a related between DECam \textit{g}-band flux, \textit{g-r} color, and SDSS \textit{u}-band fluxes.
 \end{itemize}
+
+The priority is applied such that \monster will report a magnitude in the highest priority catalog for which an entry exists. For example, if a given star does not have a measured magnitude in DES, PS1, or VST, but has Gaia XP and SkyMapper measurements, the Gaia XP magnitude will be reported in \monster (as Gaia XP is of higher priority than SkyMapper). There is a flag column in \monster that records the originating catalog for the magnitude.
 
 \section{Catalog conversion}
 \label{sec:conversion}
@@ -285,7 +287,7 @@ More information can be found at \url{https://des.ncsa.illinois.edu/releases/oth
 \subsection{Gaia XP Synthetic Magnitudes}
 \label{sec:gaiaxp}
 As inputs to \monster we use synthetic photometry derived from the Gaia DR3 XP spectra \citep{GaiaCollaboration:2023}. 
-The synthetic photometry is dervied from low-resolution spectrophotometry of ~220 million sources in the wavelength range 330nm - 1050nm. 
+The synthetic photometry is derived from low-resolution spectrophotometry of ~220 million sources in the wavelength range 330nm - 1050nm. 
 This is done using the \href{https://github.com/gaia-dpci/GaiaXPy/cd}{GaiaXPy} package. 
 GaiaXPy uses measured DECam-grizy and SDSS-u transmission curves to generate synthetic photometry in each bandpass. 
 
