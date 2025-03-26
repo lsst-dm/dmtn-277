@@ -134,9 +134,9 @@ This conversion process shards the catalog into htm=7 trixels and creates a set 
 The creation of \monster v1 required a number of different types of color transformations. 
 In this section we describe the derviation of these color transformations and show a few examples. 
 We include diagnostic plots for all color transformations used in \monster in appendix \ref{app:colorplots}
-Initially, all of the inuput catalogs flux measurements must be transformed into the internal bandpasses of \monster (DES for \emph{grizy}-band SDSS for \emph{u}-band); sections \ref{sec:todes} and \ref{sec:tosdss} show examples of this process. 
+Initially, all of the inuput catalogs flux measurements must be transformed into the internal bandpasses of \monster (DES for \emph{grizy}-band SDSS for \emph{u}-band); section \ref{sec:todes} shows an example of this process. 
 Subsequently, during the assembly of \monster, the internal bandpasses must be transformed into the target bandpasses for \monster. 
-This is done using estimated transmissions for LSST and emprically for LATISS. 
+This is done using emprically for ComCam and LATISS (section \ref{sec:tocomcam}), and estimated throguhputs were used for SynthLSST in version 1 of \monster. 
 
 % want a table with inital cat, target cat, number of nodes, color range, fit flux offset, source flag
 
@@ -154,7 +154,7 @@ Next, we fit a cubic spline to the data using equally spaced nodes over the colo
 If necessary the color terms include a flux offset to bring the two systems into agreement. 
 In a few cases, such as PS1 to DES we find a magnitude-dependent offset that has been fit as well.
 
-\subsection{To DES Bandpasses}
+\subsection{Empirical transform: refcat (GaiaXP) to Monster}
 \label{sec:todes}
 %Here we show an example of 
 \begin{figure}
@@ -164,17 +164,26 @@ In a few cases, such as PS1 to DES we find a magnitude-dependent offset that has
     Right: Residuals between GaiaXP synthetic photometry transformed to DES and DES as a function of magnitude.}
     \label{fig:color-xp-g}
 \end{figure}
-\subsection{To SDSS \textit{u}-band}
-\label{sec:tosdss}
-Need to go find/make these figures. 
-% \begin{figure}
-%     \includegraphics[width=0.49\linewidth]{./figures/color_terms/GaiaXP_to_SDSS_band_u_color_term.png}
-%     \includegraphics[width=0.49\linewidth]{./figures/color_terms/GaiaXP_to_SDSS_band_u_color_term.png}
-%     \caption{Left: The ratio of fluxes between GaiaXP synthetic photometry and DES for the \textit{g}-band as a function of \textit{g-i} color. The red line shows the cubic spline that defines our color transformation.
-%     Right: Residuals between GaiaXP synthetic photometry transformed to DES and DES as a function of magnitude.}
-%     \label{fig:color-xp-u}
-% \end{figure}
-\subsection{To Synthetic LSST Bandpasses}
+
+
+\subsection{Empirical transform: Monster to ComCam}
+\label{sec:tocomcam}
+The color transfomation from DES to ComCam bandpasses was performed using standard stars taken from FGCM in the ECDFS comissioning field. 
+The ComCam detector uses ITL sensors, and so the throguhputs should very be similar to LSSTCam in the regions of the focal plane with ITL sensors. 
+To derive these relations we used, the $$\texttt{datasetType="fgcm\_Cycle5\_StandardStars"}$$ from the $$\texttt{collection="LSSTComCam/runs/DRP/20241101\_20241211/w\_2024\_50/DM-48128"}$$
+Figure \ref{fig:color-monster-to-comcam-g} shows the magnitude residual between DES/Monster and ComCam \textit{g}-band measurements as a function of \textit{g-i} color. 
+The red line shows the relation used to generate ComCam \textit{g}-band fluxes for the monster. 
+
+
+\begin{figure}
+    \includegraphics[width=0.49\linewidth]{./figures/color_terms/DECam_monster_to_LATISS_band_g_color_term.png}
+    \includegraphics[width=0.49\linewidth]{./figures/color_terms/DECam_monster_to_LATISS_band_g_flux_residuals.png}
+    \caption{Left: The ratio of fluxes between GaiaXP synthetic photometry and DES for the \textit{g}-band as a function of \textit{g-i} color. The red line shows the cubic spline that defines our color transformation.
+    Right: Residuals between GaiaXP synthetic photometry transformed to DES and DES as a function of magnitude.}
+    \label{fig:color-monster-to-comcam-g}
+\end{figure}
+
+\subsection{Synthetic transform: Monster to  synthLSST}
 To esitimate
 \begin{itemize}
     \item FGCM star templates cite rykoff fgcm? 
@@ -182,18 +191,6 @@ To esitimate
     \item des passbands \url{https://noirlab.edu/science/sites/default/files/media/archives/documents/scidoc1884.txt}
     \item estimated color terms!
 \end{itemize}
-\subsection{To LATISS Bandpasses}
-\begin{itemize}
-    \item fgcm stars from coadd run. What collection when was the data taken? 
-\end{itemize}
-\begin{figure}
-    \includegraphics[width=0.49\linewidth]{./figures/color_terms/DECam_monster_to_LATISS_band_g_color_term.png}
-    \includegraphics[width=0.49\linewidth]{./figures/color_terms/DECam_monster_to_LATISS_band_g_flux_residuals.png}
-    \caption{Left: The ratio of fluxes between GaiaXP synthetic photometry and DES for the \textit{g}-band as a function of \textit{g-i} color. The red line shows the cubic spline that defines our color transformation.
-    Right: Residuals between GaiaXP synthetic photometry transformed to DES and DES as a function of magnitude.}
-    \label{fig:color-des-latiss-g}
-\end{figure}
-
 \section{Stellar Locus Regression for the \textit{u}-band}
 \label{sec:slr}
 
