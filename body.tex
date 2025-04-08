@@ -86,7 +86,7 @@ In Table 1 we describe some properties of the monster.
     This is done by fitting a cubic spline to the ratio of source flux and target flux as a function of color for a high quality subset of the data over a restricted color range.
     \item With the external reference catalogs in hand, as well as colorterms for each measurement, we can create versions of each source-refcat (e.g PS1) that have been matched to \textit{Gaia\_DR3} sources, further selected to only include isolated sources (no neighbors within 1"), and transformed to the DES bandpass.
     \item Finally, we assemble \monster by reading in each transformed htm shard and adding measurements for each \textit{Gaia\_DR3} (a rank order of preference is used when multiple refcats have measurements of the same source) to the\_monster catalog. 
-    We add flux measurements for the DES-bandpasses as well as any target bandpasses for the\_monster catalog. In version one of the\_monster, \textit{the\_monster\_20240904}, LATISS fluxes and synthLSST fluxes are included as well.
+    We add flux measurements for the DES-bandpasses as well as any target bandpasses for the\_monster catalog. In version one of the\_monster, \textit{the\_monster\_20240904}, LATISS fluxes and SynthLsst fluxes are included as well.
 \end{enumerate}
 
 \subsection{u-band}
@@ -133,7 +133,7 @@ This conversion process shards the catalog into htm=7 trixels and creates a set 
 \label{sec:colors}
 The creation of \monster v1 required a number of different types of color transformations. 
 In this section we describe the derviation of these color transformations and show a few examples. 
-We include diagnostic plots for all color transformations used in \monster in appendix \ref{app:colorplots}
+We include diagnostic plots for all color transformations used in \monster in appendix \ref{app:colorplots}. 
 Initially, all of the inuput catalogs flux measurements must be transformed into the internal bandpasses of \monster (DES for \emph{grizy}-band SDSS for \emph{u}-band); section \ref{sec:todes} shows an example of this process. 
 Subsequently, during the assembly of \monster, the internal bandpasses must be transformed into the target bandpasses for \monster. 
 This is done using emprically for ComCam and LATISS (section \ref{sec:tocomcam}), and estimated throguhputs were used for SynthLSST in version 1 of \monster. 
@@ -172,25 +172,29 @@ The color transfomation from DES to ComCam bandpasses was performed using standa
 The ComCam detector uses ITL sensors, and so the throguhputs should very be similar to LSSTCam in the regions of the focal plane with ITL sensors. 
 To derive these relations we used, the $$\texttt{datasetType="fgcm\_Cycle5\_StandardStars"}$$ from the $$\texttt{collection="LSSTComCam/runs/DRP/20241101\_20241211/w\_2024\_50/DM-48128"}$$
 Figure \ref{fig:color-monster-to-comcam-g} shows the magnitude residual between DES/Monster and ComCam \textit{g}-band measurements as a function of \textit{g-i} color. 
-The red line shows the relation used to generate ComCam \textit{g}-band fluxes for the monster. 
+The red line shows the relation used to generate ComCam \textit{g}-band fluxes for the monster.
+
+Additionally, the updated system throughputs based on these measurements can be found in the \href{https://github.com/lsst-dm/the_monster/tree/main/data/throughputs}{\texttt{data/throughputs}} folder of the\_monster github repository.
 
 
 \begin{figure}
-    \includegraphics[width=0.49\linewidth]{./figures/color_terms/DECam_monster_to_LATISS_band_g_color_term.png}
-    \includegraphics[width=0.49\linewidth]{./figures/color_terms/DECam_monster_to_LATISS_band_g_flux_residuals.png}
-    \caption{Left: The ratio of fluxes between GaiaXP synthetic photometry and DES for the \textit{g}-band as a function of \textit{g-i} color. The red line shows the cubic spline that defines our color transformation.
-    Right: Residuals between GaiaXP synthetic photometry transformed to DES and DES as a function of magnitude.}
+    \includegraphics[width=0.49\linewidth]{./figures/color_terms/Monster_to_ComCam_band_g_color_term.png}
+    \includegraphics[width=0.49\linewidth]{./figures/color_terms/Monster_to_ComCam_band_g_flux_residuals.png}
+    \caption{Left: The ratio of fluxes between ComCam and Monster(DES) fluxes for the \textit{g}-band as a function of \textit{g-i} color. The red line shows the cubic spline that defines our color transformation.
+    Right: Residuals between Monster (DES) photometry and ComCam as a function of magnitude.}
     \label{fig:color-monster-to-comcam-g}
 \end{figure}
 
-\subsection{Synthetic transform: Monster to  synthLSST}
-To esitimate
-\begin{itemize}
-    \item FGCM star templates cite rykoff fgcm? 
-    \item baseline v1.9 lsst transmissions \url{https://raw.githubusercontent.com/lsst/throughputs/main/baseline/total_{filter_}.dat}
-    \item des passbands \url{https://noirlab.edu/science/sites/default/files/media/archives/documents/scidoc1884.txt}
-    \item estimated color terms!
-\end{itemize}
+\subsection{Synthetic transform: Monster to  SynthLsst}
+Initially synthetic color transformations were used in \monster to transform the internal (DES) magnitudes into estimated LSST magnitudes. 
+These transformations were derived using the baseline v1.9 LSST total transmissions available at \url{https://raw.githubusercontent.com/lsst/throughputs/main/baseline/}, as well as the DES throguhputs from \citet{Abbott:2021} accessable at \url{https://noirlab.edu/science/programs/ctio/filters/Dark-Energy-Camera}.
+The transfomations are then derived using the FGCM stellar templates \citep{Burke:2018}. 
+These templates are a repackaged version of the main sequence stellar library presented in \citet{Kelly:2012}.
+For each filter, we compute the synthetic LSST and DES color terms by convolving the stellar templates with the LSSTCam total transmission curves.
+The resulting colors are then used to derive the color transformations from DES to LSSTCam bandpasses in the same manner as described in Section \ref{sec:todes}.
+An example of this process can be found in a \href{https://github.com/lsst-dm/the_monster/blob/main/notebooks/fgcm_star_templates.ipynb}{jupyter notebook on github.}
+The resulting SynthLsst magnitudes were used in version 1 of \monster, but have since been replaced by the emprical comCam magnitues in version 2.
+
 \section{Stellar Locus Regression for the \textit{u}-band}
 \label{sec:slr}
 
@@ -261,6 +265,11 @@ The SLR method we employed uses
 
 
 \input{monster_maps}
+\subsection{Known Issues}
+\begin{itemize}
+    \item Bright stars are missing from version 2 of the\_monster.
+    \item there are no flux estimates for stars with colors ouside of the range used to derive the color transformations.
+\end{itemize}
 
 \section{Detailed Descriptions}
 \label{sec:details}
@@ -296,11 +305,11 @@ We use data from the Pan-STARRS1 3pi survey, released to the Pan-STARRS1 Science
 In particular, the refcat is constructed from the "3pi.pv3.20160422" DVO catalog of Processing Version 3.
 The catalog contains $2.9 \times 10^9$ point sources at Dec > -30 deg to i $\sim$ 22.5 mag,
 
-For more information see \href{http://panstarrs.stsci.edu} and \citet{Chambers:2016}.
+For more information see \url{http://panstarrs.stsci.edu} and \citet{Chambers:2016}.
 
 \subsection{SkyMapper}
 \label{sec:skymapper}
-For \monster we use DR2 of the SkyMapper catalog \citep{Onken:2019} downloaded from \href{https://skymapper.anu.edu.au/_data/DR2/}. 
+For \monster we use DR2 of the SkyMapper catalog \citep{Onken:2019} downloaded from \url{https://skymapper.anu.edu.au/_data/DR2/}. 
 This catalog contains ugriz photometry of over $500 \times 10^6$ objects with \textit{r}-band magnitudes ranging from 10-21. 
 
 \subsection{VST}
