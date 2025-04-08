@@ -195,15 +195,62 @@ The resulting colors are then used to derive the color transformations from DES 
 An example of this process can be found in a \href{https://github.com/lsst-dm/the_monster/blob/main/notebooks/fgcm_star_templates.ipynb}{jupyter notebook on github.}
 The resulting SynthLsst magnitudes were used in version 1 of \monster, but have since been replaced by the emprical comCam magnitues in version 2.
 
-\section{Stellar Locus Regression for the \textit{u}-band}
+\section{The Monster in \textit{u}-band}
+
+One of the more challenging aspects in creating \monster was ensuring that there were an adequate density of u-band sources in the catalog to calibrate LSSTCam exposures. 
+Since homogenous full sky u-band photometry of sufficient depth does not exist, we combine measurements from three different sources to generate \textit{u}-band measurements in \monster. 
+The most well understood measurements are from SDSS DR16 \textit{u}-band standard stars, so we use these where available. 
+Additionally, we use synthetic photometry from \emph{Gaia} XP in the SDSS \textit{u}-band, this requires fitting an empirical offset between the \emph{Gaia} XP synthetic photometry and SDSS.
+The  \emph{Gaia} XP coverage is all sky but the depth is not sufficient to provide the required density of sources.
+Therefore, we use stellar locus regression SLR to estimate the \textit{u}-band fluxes for a larger set of stars.
+Figure \ref{fig:monster-u} shows the source density of \textit{u}-band measurements in \monster the median source density is ~70 sources per \texttt{NSIDE}=256 healpixel. 
+The right panel shows mean survey source for the \textit{u}-band measurements in \monster. 
+The regions with SDSS coverage can be seen in gold, while \textit{Gaia} XP measurements (pale red) are mostly used along the galactic plane and at low declination where SkyMapper provides the \emph{g}- and \emph{r}-band measurements. 
+For the rest of the sky our SLR-based \textit{u}-band measurements are used (pale blue).
+
+% u
+\begin{figure}
+    \includegraphics[width=0.48\linewidth]{./figures/source_density_maps/u-band_counts_full.png}
+    \includegraphics[width=0.48\linewidth]{./figures/source_survey_maps/u-band_source.png}
+    \caption{Left: Map showing the number of sources with a \textit{u}-band measurement per \texttt{nside}=256 healpixel.
+    Right: Map showing the median source of objects at each point in the sky for the \textit{u} band.}
+    \label{fig:monster-u}
+\end{figure}
+
+\subsection{Comparison of SDSS and \emph{Gaia} XP u-band}
+Initially, we derive a color transfomation from \emph{Gaia} XP synthetic photometry to SDSS \textit{u}-band measurements. 
+This is done using a low extinction portion of Stripe-82 defined by $20 < \alpha < 35$ and $-4 < \delta < 4$ and only include objects measured with a S/N > 10 in the \textit{u}-band. 
+The results of this color transfomation are showin in Figure \ref{fig:color-gaiaxp-usdss-u}. 
+
+\begin{figure}
+    \includegraphics[width=0.49\linewidth]{./figures/color_terms/GaiaXPu_to_SDSS_band_u_color_term.png}
+    \includegraphics[width=0.49\linewidth]{./figures/color_terms/GaiaXPu_to_SDSS_band_u_flux_residuals.png}
+    \caption{Left: The ratio of fluxes between GaiaXP synthetic photometry and SDSS for the \textit{u}-band as a function of \textit{g-r} color. The red line shows the cubic spline that defines our color transformation.
+    Right: Residuals between GaiaXP synthetic photometry transformed to SDSS and SDSS as a function of magnitude.}
+    \label{fig:color-gaiaxp-usdss-u}
+\end{figure}
+
+
+In the regions where SDSS \textit{u}-band measurements are available, we can compare the SDSS and \emph{Gaia} XP synthetic photometry.
+The left panel of Figure \ref{fig:sdss-gaiaxp-u} shows the mean value of $u_{gaiaxp}$ - $u_{sdss}$ as a function of on sky position computed at \texttt{NSIDE}=32 resoultion, a number of features can be seen in this map indicating a non-uniformity in the calibration, and a clear dependence on galactic latitude.
+The right panel shows this residual for a high-galactic lattitude subset of the data where a scatter of 12 mmag is seen with a 3 mmag offset.
+
+\begin{figure}
+    \includegraphics[width=0.64\linewidth]{./figures/u-band/uxp-usdss_full_map.png}
+    \includegraphics[width=0.32\linewidth]{./figures/u-band/uxp-usdss_highglat_hist.png}
+    \caption{Left: Map showing the mean value of $u_{gaiaxp}$ - $u_{sdss}$ as a function of on sky position computed at \texttt{NSIDE}=32 resoultion.  
+    Right: Histogram of $u_{gaiaxp} - u_{sdss}$ for the high galactic latitude ($|b| > 30$) regions of the map.}
+    \label{fig:sdss-gaiaxp-u}
+\end{figure}
+
+
+
+\subsection{Stellar Locus Regression for the \textit{u}-band}
 \label{sec:slr}
-
-One of the more challenging aspects in creating the monster was ensuring that there were an adequate density of non-saturated u-band sources in the catalog. 
-Since homogenous full sky u-band photometry at the depth required to calibrate LSSTCam exposures does not exist, we decided to use stellar locus regression to estimate the u-band flux of stars.
-This allows us to derive a relations between the DECam \textit{g}-band flux plus g-r color and the SDSS \textit{u}-band flux of stars. 
-
-To derive this relation we use SDSS DR16 \textit{u}-band measurements over a low extinction portion of Stripe-82 defined by $20 < \alpha < 35$ and $-4 < \delta < 4$ and only include objects measured with a S/N > 10 in the \textit{u}-band. 
-Subsequently, we fit for the ratio of flux in $g_{des}$ to $u_{sdss}$ as a function of $g_{des}-r_{des}$ color over the range $0.25 <  g_{des}-r_{des} < 0.8$, the left plot of Figure \ref{fig:slr_spline} shows this relation and its spline fit in red. 
+To estimate the \textit{u}-band fluxes for a larger set of stars than we have measurements for, we make that assumtion that for a well defined main-sequence stellar locus there is a tight relation between \textit{g}-band flux, the g-r color, and the \textit{u}-band magnitude.
+This assumption allows us to derive a simple relation between the DECam \textit{g}-band flux plus g-r color and the SDSS \textit{u}-band flux of stars. 
+To estimate this relation we use the same SDSS DR16 \textit{u}-band measurements over a low extinction portion of Stripe-82 that were used in the previous subsection. 
+We fit for the ratio of flux in $g_{des}$ to $u_{sdss}$ as a function of $g_{des}-r_{des}$ color over the range $0.25 <  g_{des}-r_{des} < 0.8$, the left plot of Figure \ref{fig:slr_spline} shows this relation and its spline fit in red. 
 Additionally, we found a magnitude dependent offset (after applying the color transfomation) that we show in the middle panel of Figure \ref{fig:slr_spline}. 
 After applying both of these color transfomations it can be seen on the right hand panel that there is no longer a color or magnitude dependence in this relation. 
 But, to access the performance of this relation and confirm its validity of this accross a larger area we must compare these synthetic SDSS \textit{u}-band fluxes to observations.
@@ -219,9 +266,7 @@ But, to access the performance of this relation and confirm its validity of this
     Right: Residuals between $u_{slr}$ synthetic photometry and SDSS as a function of magnitude showing a small scatter.}
 \end{figure}
 
-
-\subsection{Validation of SLR}
-Initially we compare our derived magnitudes with those of SDSS. There results of this are shown in Figure \ref{fig:slr_sdss_compare}. The left panel shows the mean residual as a function of position on the sky, there is a noticable dependence on galactic lattitude with better performance in low extinction/high-galactic lattitude regions. The right hand plot shows a histogram of the residuals for the high galactic lattitude (|b| > 30) subset of objects where we see a scatter of 20 mmag.  
+We can then compare our derived magnitudes with those of SDSS. There results of this are shown in Figure \ref{fig:slr_sdss_compare}. The left panel shows the mean residual as a function of position on the sky, there is a noticable dependence on galactic lattitude with better performance in low extinction/high-galactic lattitude regions. The right hand plot shows a histogram of the residuals for the high galactic lattitude (|b| > 30) subset of objects where we see a scatter of 20 mmag.  
 \begin{figure}
     \includegraphics[width=0.64\linewidth]{./figures/u-band/uslr/uslr-usdss_full_map.png}
     \includegraphics[width=0.32\linewidth]{./figures/u-band/uslr/uslr-usdss_highglat_hist.png}
@@ -232,8 +277,23 @@ Initially we compare our derived magnitudes with those of SDSS. There results of
     Right: Histogram of $u_{slr}$ - $u_{sdss}$ for the high galactic latitude ($|b| > 30$) regions of the map \textbf{axis label wrong fix}. }
 \end{figure}
 
+Interestingly, we still see a spatially dependent offset between the $u_{slr}$ and $u_{gaiaxp}$ measurements centered on 6 mmag.
+To improve the internal consistency of our reference catalog we apply this spatially dependent offset to the $u_{slr}$ measurements.
+The result of this is very good agreement between the $u_{slr}$ and $u_{gaiaxp}$ measurements, with a mean value of $\mu = -0.3 mmag$ and a scatter of $\sigma = 3.6 mmag$. 
+
+With this offset applied , we can now use the $u_{slr}$ measurements to fill in the gaps of \monster's \textit{u}-band coverage.
+
 \section{Assembly of the\_monster v1}
 \label{sec:assembly}
+As described in Section \ref{sec:summary}, the assembly of \monster catalog is done by reading in each of the transformed htm shards and adding measurements for each \textit{Gaia\_DR3} source.
+Table \ref{tab:summary} summarizes the properties of \monster catalog.
+The source density for all bands is above 10 sources per \texttt{NSIDE}=256 healpixel (corresponding to a single LSSTCam detector).
+The magnitude range is shown for each bandpass, notably the bright limit of the catalog is set by the bright limit of \emph{Gaia} DR3 sources.
+Future versions of \monster will include measurments from the Yale Bright Star Catalog (YBSC) to improve our completeness at the bright end.
+
+Figures \ref{fig:monster-u}, \ref{fig:monster-g}-\ref{fig:monster-y} show the source density and median source for each bandpass in \monster.
+In the \emph{griz}-bands the monster mainly draws on observations from DES, PS1, and \emph{Gaia} XP.
+As seen in Figure \ref{fig:monster-u}, the only region without at least 10 sources per healpixel is a small portion of the galactic plane. 
 
 \begin{table}[htbp]
     \centering
@@ -241,7 +301,7 @@ Initially we compare our derived magnitudes with those of SDSS. There results of
     
     \begin{tabular}{|c | c | c | c | c |}
         \hline
-        \textbf{Band} & \textbf{internal bandpass} & \textbf{Color Range} & \textbf{Source Density} & \textbf{Magnitude Range} \\
+        \textbf{band} & \textbf{internal bandpass} & \textbf{color range} & \textbf{mean sources per \emph{nside}=256 healpix} & \textbf{magnitude range} \\
         \hline
         u             &  SDSS                      & g-r=0.35--0.7        & 69                      & 7.62--23.82                   \\
         g             & DES                        & g-i=0.35--3.0        & 221                     & 6.78--23.31                 \\
@@ -256,7 +316,9 @@ Initially we compare our derived magnitudes with those of SDSS. There results of
 
 
 \input{monster_maps}
-\subsection{Known Issues}
+\newpage
+
+\subsection{Known Issues with \emph{the_monster_20250219}}
 \begin{itemize}
     \item Bright stars are missing from version 2 of the\_monster.
     \item there are no flux estimates for stars with colors ouside of the range used to derive the color transformations.
