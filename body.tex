@@ -1,7 +1,7 @@
 \section{Introduction}
 In order to sucessfully commission the Vera C. Rubin Observatory and begin the Legacy Survey of Space and Time (LSST) we need to be able to perform astrometric and photometric calibrations of individual visits.
 Initially, these calibrations will be done within the Rubin Science Pipelines by comparing instrumental measurements of fluxes and positions to those in a reference catalog and deriving photometric zeropoints or astrometric solutions to the World Coordinate System (WCS).
-Subsequently, we will use the Forward Global Calibration Method \citep[FGCM;][]{2018AJ....155...41B}, an uber-calibration method, to derive photometric zeropoints for the LSST data and achieve a photometric precision of $\sim$ 1 mmag.
+Subsequently, we will use the Forward Global Calibration Method \citep[FGCM;][]{Burke:2018}, an uber-calibration method, to derive photometric zeropoints for the LSST data and achieve a photometric precision of $\sim$ 1 mmag.
 However, during commissioning and early operations our requirements for photometric precision are less rigorous.
 
 The science requirements for photometric repeatability \citep[OSS-REQ-0387;][]{LSE-30} stipulate that the RMS photometric spread of repeated measurements of unresolved sources must be less than 5 mmag (7.5 mmag) for \emph{gri}-band (\emph{uzy}-band) observations.
@@ -16,7 +16,7 @@ To meet these requirements we need a reference catalog with the following featur
     This requires there to be at least 10 reference sources per \texttt{NSIDE}=256 healpixel on the sky.
     The size of a detector on the sky is $\sim 0.05\,\mathrm{deg}^2$, equal to the area of an \texttt{NSIDE}=256 healpixel.
     \item The catalog must contain high precision measurements of the positions of unresolved sources.
-    This is achieved by using \textit{Gaia} Data Release 3 (DR3; \citealt{GaiaCollaboration:2023}) as the basis for the objects in our catalog, with the full high-quality position and proper motion measurements from \textit{Gaia}-DR3 included.
+    This is achieved by using \textit{Gaia} Data Release 3 (DR3; \citealt{GaiaCollaboration:2023-DR3}) as the basis for the objects in our catalog, with the full high-quality position and proper motion measurements from \textit{Gaia}-DR3 included.
 \end{itemize}
 
 Previous catalogs such as ATLAS-REFCAT2 \citep{Tonry:2018} provide all-sky coverage, but are not sufficiently deep to provide the required source density at magnitudes probed by LSST images.
@@ -28,9 +28,9 @@ The code and configuration used to create \monster can be found at \url{https://
 
 \textbf{Note:} We use \emph{source} to describe the bandpass a measurement is currently in and \emph{target} to describe the bandpass we would like to transform a measurement into.
 
-In this document we describe how to access \monster in Section \ref{sec:using}. Section \ref{sec:summary} summarizes the creation of this catalog. In following sections, we discuss in more detail the input datasets (Section \ref{sec:input}), the
-conversion of external refcats to the LSST format (Section \ref{sec:conversion}), derivations of the color transformations (Section \ref{sec:colors}), and the stellar locus regression (slr) method used to derive many of the \emph{u}-band fluxes.
-Then, in Section \ref{sec:assembly} we present the assembly of \monster including characterizing of version 1 of this catalog.
+In this document we describe how to access \monster in Section \ref{sec:using}. Section \ref{sec:summary} summarizes the creation of this catalog. 
+Then, we discuss in more detail the input datasets (Section \ref{sec:input}), the conversion of external refcats to the LSST format (Section \ref{sec:conversion}), derivations of the color transformations (Section \ref{sec:colors}), and the stellar locus regression (slr) method used to derive many of the \emph{u}-band fluxes (Section \ref{sec:monster-u}).
+In Section \ref{sec:assembly}, we present the assembled catalog showing the density of sources with some basic characterization in Table \ref{tab:summary} \FIXME{why does this say table 8 instead of 1}.
 Finally, we include more detailed descriptions of each of the input catalogs for \monster in Section \ref{sec:details}.
 
 \section{Using \monster}
@@ -63,7 +63,7 @@ The systems and bands included are:
     \item ComCam: ugrizy.
 \end{itemize}
 
-Additionally, positions, proper motions, parallaxes, magnitudes, and relevant flag columns from Gaia DR3 are included for all entries in \monster.
+Additionally, positions, proper motions, parallaxes, magnitudes, and relevant flag columns from \emph{Gaia}-DR3 are included for all entries in \monster.
 
 The flat files for \monster in fits format can be accessed at the USDF at the location
 $$\texttt{path=/sdf/group/rubin/shared/refcats/the\_monster\_20250219/}$$
@@ -75,7 +75,6 @@ An example of how to retrieve the splines from the git repository and apply them
 \section{Summary of creation of \monster}
 \label{sec:summary}
 The creation of the \monster can divided into two components, the \textit{grizy}-bands and the \textit{u}-band.
-In Table 1 we describe some properties of the monster.
 
 
 \subsection{\textit{grizy-bands}}
@@ -84,8 +83,8 @@ In Table 1 we describe some properties of the monster.
     \item Subsequently, all input catalogs are converted into the LSST refcat format (htm7), see Section \ref{sec:conversion}.
     \item Our reference catalog, \monster, uses DES bandpasses internally for \textit{grizy}-bands. So, the next step is to convert all measured fluxes to the DES system by derving color transformations.
     This is done by fitting a cubic spline to the ratio of source flux and target flux as a function of color for a high quality subset of the data over a restricted color range.
-    \item With the external reference catalogs in hand, as well as colorterms for each measurement, we can create versions of each source-refcat (e.g PS1) that have been matched to \textit{Gaia\_DR3} sources, further selected to only include isolated sources (no neighbors within 1"), and transformed to the DES bandpass.
-    \item Finally, we assemble \monster by reading in each transformed htm shard and adding measurements for each \textit{Gaia\_DR3} (a rank order of preference is used when multiple refcats have measurements of the same source) to the\_monster catalog. 
+    \item With the external reference catalogs in hand, as well as colorterms for each measurement, we can create versions of each source-refcat (e.g PS1) that have been matched to \textit{Gaia}-DR3 sources, further selected to only include isolated sources (no neighbors within 1"), and transformed to the DES bandpass.
+    \item Finally, we assemble \monster by reading in each transformed htm shard and adding measurements for each \emph{Gaia}-DR3 (a rank order of preference is used when multiple refcats have measurements of the same source) to the\_monster catalog. 
     We add flux measurements for the DES-bandpasses as well as any target bandpasses for the\_monster catalog. In version one of the\_monster, \textit{the\_monster\_20240904}, LATISS fluxes and SynthLsst fluxes are included as well.
 \end{enumerate}
 
@@ -93,8 +92,8 @@ In Table 1 we describe some properties of the monster.
 For the \textit{u}-band, the creation process is similar with a few notable exceptions:
 \begin{itemize}
     \item The internal refcat system is SDSS \textit{u}-band instead of the DES-bandpasses.
-    \item The sources used to derive measurements are in the same manner as the rest of the \monster are SDSS \textit{u}-band measurements and $\mathrm{GaiaXP_{SDSSu}}$ photometry. 
-    Unfortunately, the density of sources with SDSS \textit{u}-band or $\mathrm{GaiaXP_{SDSSu}}$ is not high enough over the full LSST footprint. 
+    \item The sources used to derive measurements are in the same manner as the rest of the \monster are SDSS \textit{u}-band measurements and \emph{Gaia}-$\mathrm{XP_{SDSSu}}$ photometry. 
+    Unfortunately, the density of sources with SDSS \textit{u}-band or \emph{Gaia}-$\mathrm{XP_{SDSSu}}$ is not high enough over the full LSST footprint. 
     \item 
     Therefore, we additionally use a stellar locus regression-based (SLR) method to estimate the \textit{u}-band flux for an additional set of stars. 
     This SLR method uses DES \textit{g}-band fluxes and \textit{g-r} colors to estimate the SDSS \textit{u}-band measurements and is described in Section \ref{sec:slr}
@@ -108,30 +107,30 @@ Here we describe the input catalogs used for the creation of \monster.
 %For each catalog, we include the origin, any cuts applied, and summary plots of the spatial distributions. 
 The photometric catalogs used in this process for the \emph{grizy}-bands are (in order of priority):
 \begin{enumerate}
-    \item DES Y6 Calibration Stars (\ref{sec:des}): calibrated photometric reference stars from Dark Energy Survey (DES) year 6 data.
-    \item Gaia XP Synthetic Magnitudes (\ref{sec:gaiaxp}): synthetic photometry generated from Gaia spectrophotometry using the GaiaXPy package.
-    \item PS1 (\ref{sec:ps1}): photometry from the Pan-STARRS1 3pi survey, containing sources at declinations above -30 degrees.
-    \item SkyMapper (\ref{sec:skymapper}): southern-sky photometry from Data Release 2 of the SkyMapper survey.
-    \item VST (\ref{sec:vst}): Data Release 4 of data from VST ATLAS survey.
+    \item DES Y6 Calibration Stars \citep[Section \ref{sec:des};][]{Rykoff:2023}: calibrated photometric reference stars from Dark Energy Survey (DES) year 6 data.
+    \item \emph{Gaia}-XP Synthetic Magnitudes \citep[Section \ref{sec:gaiaxp}][]{GaiaCollaboration:2023-XP}: synthetic photometry generated from \emph{Gaia} spectrophotometry using the \texttt{GaiaXPy} package.
+    \item PS1 \citep[Section \ref{sec:ps1};][]{Chambers:2016}: photometry from the Pan-STARRS1 3pi survey, containing sources at declinations above -30 degrees.
+    \item SkyMapper \citep[Section \ref{sec:skymapper};][]{Onken:2019}: southern-sky photometry from Data Release 2 of the SkyMapper survey.
+    \item VST \citep[Section \ref{sec:vst};][]{Shanks:2015}: Data Release 4 of data from VST ATLAS survey.
 \end{enumerate}
 
 For \textit{u}-band we use:
 \begin{itemize}
-    \item SDSS Standard Stars (\ref{sec:sdss}): stars from Sloan Digital Sky Survey (SDSS) Data Release 16 with signal-to-noise greater than 5.
-    \item Gaia XP Synthetic Magnitudes (\ref{sec:gaiaxp}): synthetic photometry generated from Gaia spectrophotometry using the GaiaXPy package.
+    \item SDSS Standard Stars \citep[Section \ref{sec:sdss};][]{Ahumada:2020}: stars from Sloan Digital Sky Survey (SDSS) Data Release 16 with signal-to-noise greater than 5.
+    \item \emph{Gaia}-XP Synthetic Magnitudes \citep[Section \ref{sec:gaiaxp}][]{GaiaCollaboration:2023-XP}: synthetic photometry generated from \emph{Gaia} spectrophotometry using the \texttt{GaiaXPy} package.
     \item Stellar Locus Regression-based magnitudes (SLR) (\ref{sec:slr}): \textit{u}-band magnitudes based on a related between DECam \textit{g}-band flux, \textit{g-r} color, and SDSS \textit{u}-band fluxes.
 \end{itemize}
 
-The priority is applied such that \monster will report a magnitude in the highest priority catalog for which an entry exists. For example, if a given star does not have a measured magnitude in DES, PS1, or VST, but has Gaia XP and SkyMapper measurements, the Gaia XP magnitude will be reported in \monster (as Gaia XP is of higher priority than SkyMapper). There is a flag column in \monster that records the originating catalog for the magnitude.
+The priority is applied such that \monster will report a magnitude in the highest priority catalog for which an entry exists. For example, if a given star does not have a measured magnitude in DES, PS1, or VST, but has \emph{Gaia}-XP and SkyMapper measurements, the \emph{Gaia}-XP magnitude will be reported in \monster (as \emph{Gaia}-XP is of higher priority than SkyMapper). There is a flag column in \monster that records the originating catalog for the magnitude.
 
 \section{Catalog conversion}
 \label{sec:conversion}
 To convert the catalogs into LSST format, we follow the instructions on \href{https://pipelines.lsst.io/modules/lsst.meas.algorithms/creating-a-reference-catalog.html}{pipelines.lsst.io} on how to generate an LSST reference catalog using the \href{https://pipelines.lsst.io/modules/lsst.meas.algorithms/tasks/lsst.meas.algorithms.ConvertReferenceCatalogTask.html#lsst-task-lsst-meas-algorithms-convertreferencecatalog-convertreferencecatalogtask}{ConvertReferenceCatalogTask}. Each refcat requires its own configurations, which can be found in the \href{https://github.com/lsst-dm/the_monster/tree/main/configs}{\texttt{/configs/} folder of the\_monster github repo}.
-This conversion process shards the catalog into htm=7 trixels and creates a set of standard columns that include ra/dec coordinates as well as fluxes and errors in units of nJy.
+This conversion process shards the catalog into htm=7 trixels and creates a set of standard columns that include ra/dec coordinates as well as fluxes and errors in units of \texttt{nJy}.
 
 \section{Color Transformations}
 \label{sec:colors}
-The creation of \monster v1 required a number of different types of color transformations. 
+The creation of \monster required a number of different types of color transformations. 
 In this section we describe the derviation of these color transformations and show a few examples. 
 We include diagnostic plots for all color transformations used in \monster in appendix \ref{app:colorplots}. 
 Initially, all of the inuput catalogs flux measurements must be transformed into the internal bandpasses of \monster (DES for \emph{grizy}-band SDSS for \emph{u}-band); section \ref{sec:todes} shows an example of this process. 
@@ -141,27 +140,27 @@ This is done using emprically for ComCam and LATISS (section \ref{sec:tocomcam})
 % want a table with inital cat, target cat, number of nodes, color range, fit flux offset, source flag
 
 \subsection{Fitting color transformations}
-To derive color transformations we perform a cubic-spline based fit to derive a relation between a color mesurement the initial photometric bandpass and the ratio of fluxes between the inital and target bandpasses.
-For example, the transformation from GaiaXP's estimate of DES g-band (initial bandpass) to DES g-band (target bandpass) is shown as a red line in figure \ref{fig:color-xp-g}. 
+To derive color transformations we perform a cubic-spline based fit for a relation between the color measured in the source bandpass and the ratio of fluxes in the source and target bandpasses.
+For example, the transformation from GaiaXP's estimate of DES g-band (source bandpass) to DES g-band (target bandpass) is shown as a red line in figure \ref{fig:color-xp-g}. 
 These transformation are derived using the \href{https://github.com/lsst-dm/the_monster/blob/main/python/lsst/the/monster/measure_colorterms.py}{SplineMeasurer} class from \monster. 
 
 This fit is done by taking a spatial region where the source and target refcats overlap. 
 Over this region we 1) read in the source refcat, target refcat, and \emph{Gaia}DR3, 2) we spatially match the source and target refcats to \emph{Gaia}DR3. 3) in the source catalog we apply a single band, \textit{i}-band by default, selection to obtain a sample of high-quality stellar-sources.  
 
 With a matched catalog containing flux measurements in both systems in hand, we compute g-i (i-z) colors for all objects in gri-bands (zy-bands). 
-These colors are used to select a subest sources that we expect to be well behaved, the color ranges for each transfomation are listed in table ..... .
+These colors are used to select a subest sources that we expect to be well behaved, the color ranges for each transfomation are listed in Table \ref{tab:summary}.
 Next, we fit a cubic spline to the data using equally spaced nodes over the color range.
 If necessary the color terms include a flux offset to bring the two systems into agreement. 
 In a few cases, such as PS1 to DES we find a magnitude-dependent offset that has been fit as well.
 
 \subsection{Empirical transform: refcat (GaiaXP) to Monster}
 \label{sec:todes}
-%Here we show an example of 
+In figure \ref{fig:color-xp-g} we show the color transformation from \emph{Gaia}-XP synthetic photometry to DES \textit{g}-band measurements.
 \begin{figure}
     \includegraphics[width=0.49\linewidth]{./figures/color_terms/GaiaXP_to_DES_band_g_color_term.png}
     \includegraphics[width=0.49\linewidth]{./figures/color_terms/GaiaXP_to_DES_band_g_flux_residuals.png}
-    \caption{Left: The ratio of fluxes between \emph{Gaia} XPsynthetic photometry and DES for the \textit{g}-band as a function of \textit{g-i} color. The red line shows the cubic spline that defines our color transformation.
-    Right: Residuals between \emph{Gaia} XPsynthetic photometry transformed to DES and DES as a function of magnitude.}
+    \caption{Left: The ratio of fluxes between \emph{Gaia}-XP synthetic photometry and DES for the \textit{g}-band as a function of \textit{g-i} color. The red line shows the cubic spline that defines our color transformation.
+    Right: Residuals between \emph{Gaia}-XP synthetic photometry transformed to DES and DES as a function of magnitude.}
     \label{fig:color-xp-g}
 \end{figure}
 
@@ -186,22 +185,22 @@ Additionally, the updated system throughputs based on these measurements can be 
 \end{figure}
 
 \subsection{Synthetic transform: Monster to  SynthLsst}
-Initially synthetic color transformations were used in \monster to transform the internal (DES) magnitudes into estimated LSST magnitudes. 
+Initially, synthetic color transformations were used in \monster to transform the internal (DES) magnitudes into estimated LSST magnitudes. 
 These transformations were derived using the baseline v1.9 LSST total transmissions available at \url{https://raw.githubusercontent.com/lsst/throughputs/main/baseline/}, as well as the DES throguhputs from \citet{Abbott:2021} accessable at \url{https://noirlab.edu/science/programs/ctio/filters/Dark-Energy-Camera}.
-The transfomations are then derived using the FGCM stellar templates \citep{Burke:2018}. 
+The transfomations are found using the FGCM stellar templates \citep{Burke:2018}. 
 These templates are a repackaged version of the main sequence stellar library presented in \citet{Kelly:2012}.
 For each filter, we compute the synthetic LSST and DES color terms by convolving the stellar templates with the LSSTCam total transmission curves.
 The resulting colors are then used to derive the color transformations from DES to LSSTCam bandpasses in the same manner as described in Section \ref{sec:todes}.
-An example of this process can be found in a \href{https://github.com/lsst-dm/the_monster/blob/main/notebooks/fgcm_star_templates.ipynb}{jupyter notebook on github.}
-The resulting SynthLsst magnitudes were used in version 1 of \monster, but have since been replaced by the emprical comCam magnitues in version 2.
+An example of this process can be found in the tutorial notebook \href{https://github.com/lsst-dm/the_monster/blob/main/notebooks/fgcm_star_templates.ipynb}{\texttt{fgcm\_star\_templates.ipynb}}.
+The resulting SynthLsst magnitudes were used in version 1 of \monster, but have since been replaced by the emprical ComCam magnitues in version 2.
 
 \section{The Monster in \textit{u}-band}
-
+\label{sec:monster-u}
 One of the more challenging aspects in creating \monster was ensuring that there were an adequate density of u-band sources in the catalog to calibrate LSSTCam exposures. 
 Since homogenous full sky u-band photometry of sufficient depth does not exist, we combine measurements from three different sources to generate \textit{u}-band measurements in \monster. 
 The most well understood measurements are from SDSS DR16 \textit{u}-band standard stars, so we use these where available. 
-Additionally, we use synthetic photometry from \emph{Gaia} XP in the SDSS \textit{u}-band, this requires fitting an empirical offset between the \emph{Gaia} XP synthetic photometry and SDSS.
-The  \emph{Gaia} XP coverage is all sky but the depth is not sufficient to provide the required density of sources.
+Additionally, we use synthetic photometry from \emph{Gaia}-XP in the SDSS \textit{u}-band, this requires fitting an empirical offset between the \emph{Gaia}-XP synthetic photometry and SDSS.
+The  \emph{Gaia}-XP coverage is all sky but the depth is not sufficient to provide the required density of sources.
 Therefore, we use stellar locus regression SLR to estimate the \textit{u}-band fluxes for a larger set of stars.
 Figure \ref{fig:monster-u} shows the source density of \textit{u}-band measurements in \monster the median source density is ~70 sources per \texttt{NSIDE}=256 healpixel. 
 The right panel shows mean survey source for the \textit{u}-band measurements in \monster. 
@@ -212,34 +211,34 @@ For the rest of the sky our SLR-based \textit{u}-band measurements are used (pal
 \begin{figure}
     \includegraphics[width=0.48\linewidth]{./figures/source_density_maps/u-band_counts_full.png}
     \includegraphics[width=0.48\linewidth]{./figures/source_survey_maps/u-band_source.png}
-    \caption{Left: Map showing the number of sources with a \textit{u}-band measurement per \texttt{nside}=256 healpixel.
+    \caption{Left: Map showing the number of sources with a \textit{u}-band measurement per \texttt{NSIDE}=256 healpixel.
     Right: Map showing the median source of objects at each point in the sky for the \textit{u} band.}
     \label{fig:monster-u}
 \end{figure}
 
-\subsection{Comparison of SDSS and \emph{Gaia} XP u-band}
-Initially, we derive a color transfomation from \emph{Gaia} XP synthetic photometry to SDSS \textit{u}-band measurements. 
+\subsection{Comparison of SDSS and \emph{Gaia}-XP u-band}
+Initially, we derive a color transfomation from \emph{Gaia}-XP synthetic photometry to SDSS \textit{u}-band measurements. 
 This is done using a low extinction portion of Stripe-82 defined by $20 < \alpha < 35$ and $-4 < \delta < 4$ and only include objects measured with a S/N > 10 in the \textit{u}-band. 
 The results of this color transfomation are showin in Figure \ref{fig:color-gaiaxp-usdss-u}. 
 
 \begin{figure}
     \includegraphics[width=0.49\linewidth]{./figures/color_terms/GaiaXPu_to_SDSS_band_u_color_term.png}
     \includegraphics[width=0.49\linewidth]{./figures/color_terms/GaiaXPu_to_SDSS_band_u_flux_residuals.png}
-    \caption{Left: The ratio of fluxes between \emph{Gaia} XPsynthetic photometry and SDSS for the \textit{u}-band as a function of \textit{g-r} color. The red line shows the cubic spline that defines our color transformation.
-    Right: Residuals between \emph{Gaia} XPsynthetic photometry transformed to SDSS and SDSS as a function of magnitude.}
+    \caption{Left: The ratio of fluxes between \emph{Gaia}-XP synthetic photometry and SDSS for the \textit{u}-band as a function of \textit{g-r} color. The red line shows the cubic spline that defines our color transformation.
+    Right: Residuals between \emph{Gaia}-XP synthetic photometry transformed to SDSS and SDSS as a function of magnitude.}
     \label{fig:color-gaiaxp-usdss-u}
 \end{figure}
 
 
-In the regions where SDSS \textit{u}-band measurements are available, we can compare the SDSS and \emph{Gaia} XP synthetic photometry.
-The left panel of Figure \ref{fig:sdss-gaiaxp-u} shows the mean value of $u_{gaiaxp}$ - $u_{sdss}$ as a function of on sky position computed at \texttt{NSIDE}=32 resoultion, a number of features can be seen in this map indicating a non-uniformity in the calibration, and a clear dependence on galactic latitude.
+In the regions where SDSS \textit{u}-band measurements are available, we can compare the SDSS and \emph{Gaia}-XP synthetic photometry.
+The left panel of Figure \ref{fig:sdss-gaiaxp-u} shows the mean value of $u_{GaiaXP}$ - $u_{sdss}$ as a function of on sky position computed at \texttt{NSIDE}=32 resoultion, a number of features can be seen in this map indicating a non-uniformity in the calibration, and a clear dependence on galactic latitude.
 The right panel shows this residual for a high-galactic lattitude subset of the data where a scatter of 12 mmag is seen with a 3 mmag offset.
 
 \begin{figure}
     \includegraphics[width=0.64\linewidth]{./figures/u-band/uxp-usdss_full_map.png}
     \includegraphics[width=0.32\linewidth]{./figures/u-band/uxp-usdss_highglat_hist.png}
-    \caption{Left: Map showing the mean value of $u_{gaiaxp}$ - $u_{sdss}$ as a function of on sky position computed at \texttt{NSIDE}=32 resoultion.  
-    Right: Histogram of $u_{gaiaxp} - u_{sdss}$ for the high galactic latitude ($|b| > 30$) regions of the map.}
+    \caption{Left: Map showing the mean value of $u_{GaiaXP}$ - $u_{sdss}$ as a function of on sky position computed at \texttt{NSIDE}=32 resoultion.  
+    Right: Histogram of $u_{GaiaXP} - u_{sdss}$ for the high galactic latitude ($|b| > 30$) regions of the map.}
     \label{fig:sdss-gaiaxp-u}
 \end{figure}
 
@@ -274,25 +273,25 @@ We can then compare our derived magnitudes with those of SDSS. There results of 
     \label{fig:slr_sdss_compare}
     \caption{
     Left: A map showing the mean value of $u_{slr}$ - $u_{sdss}$ as a function of on sky position computed at \texttt{NSIDE}=32 resoulution.  
-    Right: Histogram of $u_{slr}$ - $u_{sdss}$ for the high galactic latitude ($|b| > 30$) regions of the map \textbf{axis label wrong fix}. }
+    Right: Histogram of $u_{slr}$ - $u_{sdss}$ for the high galactic latitude ($|b| > 30$) regions of the map \FIXME{axis label wrong}. }
 \end{figure}
 
-Interestingly, we still see a spatially dependent offset between the $u_{slr}$ and $u_{gaiaxp}$ measurements centered on 6 mmag.
+Interestingly, we still see a spatially dependent offset between the $u_{slr}$ and $u_{Gaiaxp}$ measurements centered on 6 mmag.
 To improve the internal consistency of our reference catalog we apply this spatially dependent offset to the $u_{slr}$ measurements.
-The result of this is very good agreement between the $u_{slr}$ and $u_{gaiaxp}$ measurements, with a mean value of $\mu = -0.3 mmag$ and a scatter of $\sigma = 3.6 mmag$. 
+The result of this is very good agreement between the $u_{slr}$ and $u_{Gaiaxp}$ measurements, with a mean value of $\mu = -0.3 mmag$ and a scatter of $\sigma = 3.6 mmag$. 
 
 With this offset applied , we can now use the $u_{slr}$ measurements to fill in the gaps of \monster's \textit{u}-band coverage.
 
 \section{Assembly of the\_monster v1}
 \label{sec:assembly}
-As described in Section \ref{sec:summary}, the assembly of \monster catalog is done by reading in each of the transformed htm shards and adding measurements for each \textit{Gaia\_DR3} source.
+As described in Section \ref{sec:summary}, the assembly of \monster catalog is done by reading in each of the transformed htm shards and adding measurements for each \textit{Gaia}-DR3 source.
 Table \ref{tab:summary} summarizes the properties of \monster catalog.
 The source density for all bands is above 10 sources per \texttt{NSIDE}=256 healpixel (corresponding to a single LSSTCam detector).
-The magnitude range is shown for each bandpass, notably the bright limit of the catalog is set by the bright limit of \emph{Gaia} DR3 sources.
+The magnitude range is shown for each bandpass, notably the bright limit of the catalog is set by the bright limit of \emph{Gaia}-DR3 sources.
 Future versions of \monster will include measurments from the Yale Bright Star Catalog (YBSC) to improve our completeness at the bright end.
 
 Figures \ref{fig:monster-u}, \ref{fig:monster-g}-\ref{fig:monster-y} show the source density and median source for each bandpass in \monster.
-In the \emph{griz}-bands the monster mainly draws on observations from DES, PS1, and \emph{Gaia} XP.
+In the \emph{griz}-bands the monster mainly draws on observations from DES, PS1, and \emph{Gaia}-XP.
 As seen in Figure \ref{fig:monster-u}, the only region without at least 10 sources per healpixel is a small portion of the galactic plane. 
 
 \begin{table}[htbp]
@@ -301,7 +300,8 @@ As seen in Figure \ref{fig:monster-u}, the only region without at least 10 sourc
     
     \begin{tabular}{|c | c | c | c | c |}
         \hline
-        \textbf{band} & \textbf{internal bandpass} & \textbf{color range} & \textbf{mean sources per \emph{nside}=256 healpix} & \textbf{magnitude range} \\
+        \textbf{band} & \textbf{internal bandpass} & \textbf{color range} & \textbf{median number of sources } & \textbf{magnitude range} \\
+                      &                            &                      & \textbf{per \texttt{NSIDE}=256 healpix}& \\
         \hline
         u             &  SDSS                      & g-r=0.35--0.7        & 69                      & 7.62--23.82                   \\
         g             & DES                        & g-i=0.35--3.0        & 221                     & 6.78--23.31                 \\
@@ -330,7 +330,7 @@ In the following subsections, we describe the external photometric catalogs used
 
 \subsection{Dark Energy Survey (DES) Y6 Calibration Stars}
 \label{sec:des}
-Data is described in \href{https://arxiv.org/abs/2305.01695}{Rykoff et al 2023}.
+Data is described in \citep{Rykoff:2023}.
 Briefly, this is a catalog of calibrated reference stars generated by the Forward Calibration Method (FGCM) pipeline (arXiv:1706.01542) as part of the FGCM photometric calibration of the full Dark Energy Survey (DES) 6-Year data set (Y6). This catalog provides DES \textit{grizY} magnitudes for 17 million stars with \textit{i}-band magnitudes mostly in the range 16 < \textit{i} < 21, spread over the full DES footprint covering 5000 square degrees over the Southern Galactic Cap at galactic latitudes \textit{b} < -20 degrees (plus a few outlying fields disconnected from the main survey footprint). 
 These stars are calibrated to a uniformity of better than 1.8 milli-mag (0.18\%) RMS over the survey area. 
 The absolute calibration of the catalog is computed with reference to the STISNIC.007 spectrum of the Hubble Space Telescope CalSpec standard star C26202; including systematic errors, the absolute flux system is known at the approximately 1\% level. 
@@ -343,12 +343,12 @@ More information can be found at \url{https://des.ncsa.illinois.edu/releases/oth
 % \subsubsection{Color transformations}
 % The DES bandpasses act as the internal bandpasses for \monster and 
 
-\subsection{Gaia XP Synthetic Magnitudes}
+\subsection{\emph{Gaia}-XP Synthetic Magnitudes}
 \label{sec:gaiaxp}
-As inputs to \monster we use synthetic photometry derived from the Gaia DR3 XP spectra \citep{GaiaCollaboration:2023}. 
+As inputs to \monster we use synthetic photometry derived from the \emph{Gaia}-XP spectra \citep{GaiaCollaboration:2023-XP}. 
 The synthetic photometry is derived from low-resolution spectrophotometry of ~220 million sources in the wavelength range 330nm - 1050nm. 
-This is done using the \href{https://github.com/gaia-dpci/GaiaXPy/cd}{GaiaXPy} package. 
-GaiaXPy uses measured DECam-grizy and SDSS-u transmission curves to generate synthetic photometry in each bandpass. 
+This is done using the \href{https://github.com/gaia-dpci/GaiaXPy/cd}{\texttt{GaiaXPy}} package. 
+\texttt{GaiaXPy} uses measured DECam-grizy and SDSS-u transmission curves to generate synthetic photometry in each bandpass. 
 
 
 \subsection{PanSTARRS1 (PS1)}
@@ -403,7 +403,7 @@ The catalog consists of all primary stars with u-band flags set to FALSE and mag
 %     \item For each catalog, compute an empirical correction to go from Catalog X to DES. This uses the cross-coverage. The empirical correction will be some sort of spline fit (TBD) to apply to stars across a broad range of colors. We will also allow for a "background offset" term (to account for offsets as a function of flux due to background issues).
 %     \item Apply the empirical correction to convert Catalog X to DES bands for the full catalog.
 %     \item Convert from DES to LSSTCam (sim for now) using a stellar template library. When we have real data (throughputs, stars, both), we can update this conversion all at once.
-%     \item Choose a catalog rank-ordering (e.g., DES, Gaia XP, PS1, SkyMapper, etc.).
+%     \item Choose a catalog rank-ordering (e.g., DES, \emph{Gaia}-XP, PS1, SkyMapper, etc.).
 %     \item For each star with band X, choose the top-ranked catalog with a measurement in that band.
 % \end{enumerate}
 
