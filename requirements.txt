@@ -1,2 +1,0 @@
-documenteer[technote]>=1.0.0a13
-myst_parser

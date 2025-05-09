@@ -2,20 +2,32 @@
 \input{meta}
 
 % Package imports go here.
-
+\usepackage{lineno}
 % Local commands go here.
-
+\newcommand\monster{The Monster\xspace}
 %If you want glossaries
 %\input{aglossary.tex}
 %\makeglossaries
 
-\title{The Monster: a southern reference catalog with synthetic ugrizy fluxes for the Vera C. Rubin observatory}
+\title{The Monster: A reference catalog with synthetic ugrizy-band fluxes for the Vera C. Rubin observatory}
+
+% This can write metadata into the PDF.
+% Update keywords and author information as necessary.
+\hypersetup{
+    pdftitle={The Monster},
+    pdfauthor={Peter Ferguson},
+    pdfkeywords={}
+}
 
 % Optional subtitle
 % \setDocSubtitle{A subtitle}
 
 \author{%
-Peter Ferguson
+Peter Ferguson,
+Eli Rykoff,
+Jeff Carlin, 
+Clare Saunders, 
+John Parejko
 }
 
 \setDocRef{DMTN-277}
@@ -27,20 +39,21 @@ Peter Ferguson
 % \setDocCurator{The Curator of this Document}
 
 \setDocAbstract{%
-In order to facilitate bootstrap photometric calibrations of early Rubin Observatory data we have created the Monster. This reference catalog uses a ranked order set of other reference catalogs to generate synthetic ugrizy fluxes that can be used calibrate images processed with the LSST science pipelines. This document describes the methodology used to create the Monster, documents the input reference catalogs, and performs basic data validation the Monster reference catalog.
+ \input{abstract}
 }
 
 % Change history defined here.
 % Order: oldest first.
 % Fields: VERSION, DATE, DESCRIPTION, OWNER NAME.
 % See LPM-51 for version number policy.
-\setDocChangeRecord{%
+\setDocChangeRecord{%We
   \addtohist{1}{YYYY-MM-DD}{Unreleased.}{Peter Ferguson}
 }
 
 
 \begin{document}
-
+\linenumbers
+\newcommand{\FIXME}[1]{{\bf \textcolor{red}{#1}}}
 % Create the title page.
 \maketitle
 % Frequently for a technote we do not want a title page  uncomment this to remove the title page and changelog.
@@ -48,7 +61,9 @@ In order to facilitate bootstrap photometric calibrations of early Rubin Observa
 
 % ADD CONTENT HERE
 % You can also use the \input command to include several content files.
+\input{body}
 
+\clearpage
 \appendix
 % Include all the relevant bib files.
 % https://lsst-texmf.lsst.io/lsstdoc.html#bibliographies
@@ -56,9 +71,12 @@ In order to facilitate bootstrap photometric calibrations of early Rubin Observa
 \renewcommand{\refname}{} % Suppress default Bibliography section
 \bibliography{local,lsst,lsst-dm,refs_ads,refs,books}
 
+\clearpage
+\input{color_transformations}
+
 % Make sure lsst-texmf/bin/generateAcronyms.py is in your path
-\section{Acronyms} \label{sec:acronyms}
-\input{acronyms.tex}
+%%\section{Acronyms} \label{sec:acronyms}
+%\input{acronyms.tex}
 % If you want glossary uncomment below -- comment out the two lines above
 %\printglossaries
 
