@@ -1,7 +1,7 @@
 \section{Introduction}
 In order to sucessfully commission the Vera C. Rubin Observatory and begin the Legacy Survey of Space and Time (LSST) we need to be able to perform astrometric and photometric calibrations of individual visits.
 Initially, these calibrations will be done within the Rubin Science Pipelines by comparing instrumental measurements of fluxes and positions to those in a reference catalog and deriving photometric zeropoints and astrometric solutions to the World Coordinate System (WCS).
-Subsequently, we will use the Forward Global Calibration Method \citep[FGCM;][]{Burke:2018}, an uber-calibration method, to derive photometric zeropoints for the LSST data and achieve a photometric precision of better than 5 mmag.
+Subsequently, we will use the Forward Global Calibration Method \citep[FGCM;][]{2018AJ....155...41B}, an uber-calibration method, to derive photometric zeropoints for the LSST data and achieve a photometric precision of better than 5 mmag.
 However, during commissioning and early operations our requirements for photometric precision are less rigorous.
 
 The science requirements for photometric repeatability \citep[OSS-REQ-0387;][]{LSE-30} stipulate that the RMS photometric spread of repeated measurements of unresolved sources must be less than 5 mmag (7.5 mmag) for \emph{gri}-band (\emph{uzy}-band) observations.
@@ -16,11 +16,11 @@ To meet these requirements we need a reference catalog with the following featur
     This requires there to be at least 10 reference sources per \texttt{NSIDE}=256 healpixel on the sky.
     The size of a detector on the sky is $\sim 0.05\,\mathrm{deg}^2$, coincidentally equal to the area of an \texttt{NSIDE}=256 healpixel.
     \item The catalog must contain high precision measurements of the positions of unresolved sources.
-    This is achieved by using \textit{Gaia} Data Release 3 (\emph{Gaia}-DR3; \citealt{GaiaCollaboration:2023-DR3}) as the basis for the objects in our catalog, with the full high-quality position and proper motion measurements from \textit{Gaia}-DR3 included.
+    This is achieved by using \textit{Gaia} Data Release 3 (\emph{Gaia}-DR3; \citealt{2023A&A...674A...1G}) as the basis for the objects in our catalog, with the full high-quality position and proper motion measurements from \textit{Gaia}-DR3 included.
 \end{itemize}
 
-Previous catalogs such as ATLAS-REFCAT2 \citep{Tonry:2018} provide all-sky coverage, but are not sufficiently deep to provide the required source density at magnitudes probed by LSST images.
-PANSTARRS-1\citep[PS1;][]{Chambers:2016} provides sufficient depth in \emph{grizy}-bands but does not have \emph{u}-band, and its sky coverage is limited to declinations above $\delta = -30$ deg.
+Previous catalogs such as ATLAS-REFCAT2 \citep{2018ApJ...867..105T} provide all-sky coverage, but are not sufficiently deep to provide the required source density at magnitudes probed by LSST images.
+PANSTARRS-1\citep[PS1;][]{2016arXiv161205560C} provides sufficient depth in \emph{grizy}-bands but does not have \emph{u}-band, and its sky coverage is limited to declinations above $\delta = -30$ deg.
 Additionally, we would like our reference catalog to provides fluxes in the native LSSTCam (or LATISS) bandpasses to avoid requiring the science pipelines to apply transformations including color terms when processing the data.
 Therefore, we have developed \monster, a combination of reference catalogs, containing only stellar sources, similar to ATLAS-REFCAT2 but with the bandpass coverage and depth required to enable LSST.
 
@@ -109,17 +109,17 @@ Here we describe the input catalogs used for the creation of \monster.
 %For each catalog, we include the origin, any cuts applied, and summary plots of the spatial distributions. 
 The photometric catalogs used in this process for the \emph{grizy}-bands are (in order of priority):
 \begin{enumerate}
-    \item DES Y6 Calibration Stars \citep[Section \ref{sec:des};][]{Rykoff:2023}: calibrated photometric reference stars from Dark Energy Survey (DES) year 6 data.
-    \item \emph{Gaia}-XP Synthetic Magnitudes \citep[Section \ref{sec:gaiaxp}][]{GaiaCollaboration:2023-XP}: synthetic photometry generated from \emph{Gaia} spectrophotometry using the \texttt{GaiaXPy} package.
-    \item PS1 \citep[Section \ref{sec:ps1};][]{Chambers:2016}: photometry from the Pan-STARRS1 3pi survey, containing sources at declinations above -30 degrees.
-    \item SkyMapper \citep[Section \ref{sec:skymapper};][]{Onken:2019}: southern-sky photometry from Data Release 2 of the SkyMapper survey.
-    \item VST \citep[Section \ref{sec:vst};][]{Shanks:2015}: Data Release 4 of data from VST ATLAS survey.
+    \item DES Y6 Calibration Stars \citep[Section \ref{sec:des};][]{2023arXiv230501695R}: calibrated photometric reference stars from Dark Energy Survey (DES) year 6 data.
+    \item \emph{Gaia}-XP Synthetic Magnitudes \citep[Section \ref{sec:gaiaxp}][]{2023A&A...674A..33G}: synthetic photometry generated from \emph{Gaia} spectrophotometry using the \texttt{GaiaXPy} package.
+    \item PS1 \citep[Section \ref{sec:ps1};][]{2016arXiv161205560C}: photometry from the Pan-STARRS1 3pi survey, containing sources at declinations above -30 degrees.
+    \item SkyMapper \citep[Section \ref{sec:skymapper};][]{2019PASA...36...33O}: southern-sky photometry from Data Release 2 of the SkyMapper survey.
+    \item VST \citep[Section \ref{sec:vst};][]{2015MNRAS.451.4238S}: Data Release 4 of data from VST ATLAS survey.
 \end{enumerate}
 
 For \textit{u}-band we use:
 \begin{itemize}
-    \item SDSS Standard Stars \citep[Section \ref{sec:sdss};][]{Ahumada:2020}: stars from Sloan Digital Sky Survey (SDSS) Data Release 16 with signal-to-noise greater than 5.
-    \item \emph{Gaia}-XP Synthetic Magnitudes \citep[Section \ref{sec:gaiaxp}][]{GaiaCollaboration:2023-XP}: synthetic photometry generated from \emph{Gaia} spectrophotometry using the \texttt{GaiaXPy} package.
+    \item SDSS Standard Stars \citep[Section \ref{sec:sdss};][]{2020ApJS..249....3A}: stars from Sloan Digital Sky Survey (SDSS) Data Release 16 with signal-to-noise greater than 5.
+    \item \emph{Gaia}-XP Synthetic Magnitudes \citep[Section \ref{sec:gaiaxp}][]{2023A&A...674A..33G}: synthetic photometry generated from \emph{Gaia} spectrophotometry using the \texttt{GaiaXPy} package.
     \item Stellar Locus Regression-based magnitudes (SLR) (\ref{sec:slr}): \textit{u}-band magnitudes based on a related between DECam \textit{g}-band flux, \textit{g-r} color, and SDSS \textit{u}-band fluxes.
 \end{itemize}
 
@@ -168,9 +168,9 @@ In figure \ref{fig:color-xp-g} we show the color transformation from \emph{Gaia}
 
 \subsection{Synthetic transform: Monster to  SynthLsst}
 Initially, synthetic color transformations were used in \monster to transform the internal (DES) magnitudes into estimated LSST magnitudes. 
-These transformations were derived using the baseline v1.9 LSST total transmissions available at \url{https://github.com/lsst/throughputs/tree/1.9/baseline}, as well as the DES throguhputs from \citet{Abbott:2021} accessable at \url{https://noirlab.edu/science/programs/ctio/filters/Dark-Energy-Camera}.
-The transfomations are found using the FGCM stellar templates \citep{Burke:2018}. 
-These templates are a repackaged version of the main sequence stellar library presented in \citet{Kelly:2012}.
+These transformations were derived using the baseline v1.9 LSST total transmissions available at \url{https://github.com/lsst/throughputs/tree/1.9/baseline}, as well as the DES throguhputs from \citet{2021ApJS..255...20A} accessable at \url{https://noirlab.edu/science/programs/ctio/filters/Dark-Energy-Camera}.
+The transfomations are found using the FGCM stellar templates \citep{2018AJ....155...41B}. 
+These templates are a repackaged version of the main sequence stellar library presented in \citet{2012ascl.soft08007K}.
 For each filter, we compute the synthetic LSST and DES color terms by convolving the stellar templates with the LSSTCam total transmission curves.
 The resulting colors are then used to derive the color transformations from DES to LSSTCam bandpasses in the same manner as described in Section \ref{sec:todes}.
 An example of this process can be found in the tutorial notebook \href{https://github.com/lsst-dm/the_monster/blob/main/notebooks/fgcm_star_templates.ipynb}{\texttt{fgcm\_star\_templates.ipynb}}.
@@ -229,7 +229,7 @@ The results of this color transfomation are shown in Figure \ref{fig:color-gaiax
     \includegraphics[width=0.49\linewidth]{./figures/color_terms/GaiaXPu_to_SDSS_band_u_flux_residuals.png}
     \caption{Left: The ratio of fluxes between \emph{Gaia}-XP synthetic photometry and SDSS for the \textit{u}-band as a function of \textit{g-r} color. The red line shows the cubic spline that defines our color transformation.
     Right: Residuals between \emph{Gaia}-XP synthetic photometry transformed to SDSS and SDSS as a function of magnitude.
-    Note that the \emph{Gaia}-XP synthetic photometry uses the raw values not the standardized values from \citet{GaiaCollaboration:2023-XP}.}
+    Note that the \emph{Gaia}-XP synthetic photometry uses the raw values not the standardized values from \citet{2023A&A...674A..33G}.}
     \label{fig:color-gaiaxp-usdss-u}
 \end{figure}
 
@@ -335,7 +335,7 @@ In the following subsections, we describe the external photometric catalogs used
 
 \subsection{Dark Energy Survey (DES) Y6 Calibration Stars}
 \label{sec:des}
-Data is described in \citep{Rykoff:2023}.
+Data is described in \citep{2023arXiv230501695R}.
 Briefly, this is a catalog of calibrated reference stars generated by the Forward Calibration Method (FGCM) pipeline (arXiv:1706.01542) as part of the FGCM photometric calibration of the full Dark Energy Survey (DES) 6-Year data set (Y6). This catalog provides DES \textit{grizY} magnitudes for 17 million stars with \textit{i}-band magnitudes mostly in the range 16 < \textit{i} < 21, spread over the full DES footprint covering 5000 square degrees over the Southern Galactic Cap at galactic latitudes \textit{b} < -20 degrees (plus a few outlying fields disconnected from the main survey footprint). 
 These stars are calibrated to a uniformity of better than 1.8 milli-mag (0.18\%) RMS over the survey area. 
 The absolute calibration of the catalog is computed with reference to the STISNIC.007 spectrum of the Hubble Space Telescope CalSpec standard star C26202; including systematic errors, the absolute flux system is known at the approximately 1\% level. 
@@ -350,7 +350,7 @@ More information can be found at \url{https://des.ncsa.illinois.edu/releases/oth
 
 \subsection{\emph{Gaia}-XP Synthetic Magnitudes}
 \label{sec:gaiaxp}
-As inputs to \monster we use synthetic photometry derived from the \emph{Gaia}-XP spectra \citep{GaiaCollaboration:2023-XP}. 
+As inputs to \monster we use synthetic photometry derived from the \emph{Gaia}-XP spectra \citep{2023A&A...674A..33G}. 
 The synthetic photometry is derived from low-resolution spectrophotometry of ~220 million sources in the wavelength range 330nm - 1050nm. 
 This is done using the \href{https://github.com/gaia-dpci/GaiaXPy/cd}{\texttt{GaiaXPy}} package. 
 \texttt{GaiaXPy} uses measured DECam-grizy and SDSS-u transmission curves to generate synthetic photometry in each bandpass. 
@@ -363,11 +363,11 @@ We use data from the Pan-STARRS1 3pi survey, released to the Pan-STARRS1 Science
 In particular, the refcat is constructed from the "3pi.pv3.20160422" DVO catalog of Processing Version 3.
 The catalog contains $2.9 \times 10^9$ point sources at Dec > -30 deg to i $\sim$ 22.5 mag,
 
-For more information see \url{http://panstarrs.stsci.edu} and \citet{Chambers:2016}.
+For more information see \url{http://panstarrs.stsci.edu} and \citet{2016arXiv161205560C}.
 
 \subsection{SkyMapper}
 \label{sec:skymapper}
-For \monster we use DR2 of the SkyMapper catalog \citep{Onken:2019} downloaded from \url{https://skymapper.anu.edu.au/_data/DR2/}. 
+For \monster we use DR2 of the SkyMapper catalog \citep{2019PASA...36...33O} downloaded from \url{https://skymapper.anu.edu.au/_data/DR2/}. 
 This catalog contains ugriz photometry of over $500 \times 10^6$ objects with \textit{r}-band magnitudes ranging from 10-21. 
 
 \subsection{VST}
